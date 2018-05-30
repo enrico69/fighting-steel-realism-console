@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use App\Core\Display\DisplayTrait;
 
 /**
  * Class Launcher
@@ -17,6 +18,8 @@ use Symfony\Component\Console\Question\Question;
  */
 class Launcher extends Command
 {
+    use DisplayTrait;
+
     /**
      * @var OutputInterface
      */
@@ -47,7 +50,6 @@ class Launcher extends Command
     {
         $this->output = $output;
         $this->input  = $input;
-        $this->displayMenu();
         $this->handleInput();
     }
 
@@ -61,17 +63,9 @@ class Launcher extends Command
             'Q' => 'Exit the application',
         ];
 
+        $this->outputTitle('Fighting Steel Realism Console');
         $this->output->writeln('What do you want to do?');
-        $elementsCount = count($menuContent);
-        $row           = 1;
-        foreach ($menuContent as $shortcut => $label) {
-            $this->output->writeln("{$shortcut}- $label");
-            $row++;
-
-            if ($row === $elementsCount) {
-                $this->output->writeln('');
-            }
-        }
+        $this->outputMenu($menuContent);
     }
 
     /**
@@ -79,38 +73,38 @@ class Launcher extends Command
      */
     protected function handleInput() : void
     {
-        $choiceIsCorrect = false;
+        $exitApplication = false;
         $helper          = $this->getHelper('question');
         $question        = new Question('Enter your choice: ', 'q');
-        $menuChoice      = mb_strtolower(
-            $helper->ask($this->input, $this->output, $question)
-        );
 
-        while (!$choiceIsCorrect) {
+        while (!$exitApplication) {
+            $this->clearScreen();
+            $this->displayMenu();
+            $menuChoice = mb_strtolower(
+                $helper->ask($this->input, $this->output, $question)
+            );
+
             switch ($menuChoice) {
                 case 1:
-                    $this->launchSubModule('TasMenu', $choiceIsCorrect);
+                    $exitApplication = $this->launchSubModule('TasMenu');
                     break;
                 case 'q':
-                    $this->output->writeln('Bye!');
-                    $choiceIsCorrect = true;
+                    $this->output->writeln('Abandon ship!');
+                    $exitApplication = true;
                     break;
-                default:
-                    $this->output->writeln('Unknown choice');
-                    $menuChoice = $helper->ask($this->input, $this->output, $question);
             }
-        }
+        } // End display menu
     }
 
     /**
      * @param string $moduleName
-     * @param bool   $choiceIsCorrect
+     *
+     * @return bool
      *
      * @throws \InvalidArgumentException
      */
-    protected function launchSubModule(string $moduleName, bool  &$choiceIsCorrect) : void
+    protected function launchSubModule(string $moduleName) : bool
     {
-        $choiceIsCorrect = true;
         $this->output->writeln('');
 
         switch ($moduleName) {
@@ -124,6 +118,7 @@ class Launcher extends Command
         /** @var \Symfony\Component\Console\Command\Command $subModule */
         $subModule = new $moduleName();
         $subModule->setHelperSet($this->getHelperSet());
-        $subModule->execute($this->input, $this->output);
+
+        return $subModule->execute($this->input, $this->output);
     }
 }

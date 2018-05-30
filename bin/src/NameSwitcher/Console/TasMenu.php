@@ -10,9 +10,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use App\Core\Display\DisplayTrait;
 
 class TasMenu extends Command
 {
+    use DisplayTrait;
+
     /**
      * @var OutputInterface
      */
@@ -27,14 +30,14 @@ class TasMenu extends Command
      * @param \Symfony\Component\Console\Input\InputInterface   $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      *
-     * @return int|null|void
+     * @return bool
      */
-    public function execute(InputInterface $input, OutputInterface $output) : void
+    public function execute(InputInterface $input, OutputInterface $output) : bool
     {
         $this->output = $output;
         $this->input  = $input;
-        $this->displayMenu();
-        $this->handleInput();
+
+        return $this->handleInput();
     }
 
     /**
@@ -48,49 +51,46 @@ class TasMenu extends Command
             'R' => 'Return to main menu',
         ];
 
+        $this->outputTitle('Fighting Steel Name Switcher');
         $this->output->writeln('In which direction are you switching?');
-        $elementsCount = count($menuContent);
-        $row           = 1;
-        foreach ($menuContent as $shortcut => $label) {
-            $this->output->writeln("{$shortcut}- $label");
-            $row++;
-
-            if ($row === $elementsCount) {
-                $this->output->writeln('');
-            }
-        }
+        $this->outputMenu($menuContent);
     }
 
     /**
      * Handle the user choice
+     *
+     * @return bool
      */
-    protected function handleInput() : void
+    protected function handleInput() : bool
     {
-        $choiceIsCorrect = false;
+        $exitApplication = false;
         $helper          = $this->getHelper('question');
         $question        = new Question('Enter your choice: ', 'q');
-        $menuChoice      = mb_strtolower(
-            $helper->ask($this->input, $this->output, $question)
-        );
 
-        while (!$choiceIsCorrect) {
+        while (!$exitApplication) {
+            $this->clearScreen();
+            $this->displayMenu();
+            $menuChoice = mb_strtolower(
+                $helper->ask($this->input, $this->output, $question)
+            );
+
             switch ($menuChoice) {
                 case 1:
                     $this->output->writeln('AH');
-                    $choiceIsCorrect = true;
+                    $exitApplication = true;
                     break;
                 case 2:
                     $this->output->writeln('OH');
-                    $choiceIsCorrect = true;
+                    $exitApplication = true;
                     break;
                 case 'r':
                     $this->output->writeln('');
-                    $choiceIsCorrect = true;
+                    $exitApplication = true;
                     break;
-                default:
-                    $menuChoice = $helper->ask($this->input, $this->output, $question);
             }
         }
+
+        return false;
     }
 
     /**
