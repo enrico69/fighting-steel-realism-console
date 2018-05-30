@@ -2,20 +2,16 @@
 /**
  * Created by Eric COURTIAL.
  * @author <e.courtial30@gmail.com>
- * Date: 18-05-28
+ * Date: 18-05-29
  */
-namespace App\Core\Console;
+namespace App\NameSwitcher\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-/**
- * Class Launcher
- * @package Core\Console
- */
-class Launcher extends Command
+class TasMenu extends Command
 {
     /**
      * @var OutputInterface
@@ -28,22 +24,12 @@ class Launcher extends Command
     protected $input;
 
     /**
-     * Configure the command
-     */
-    protected function configure() : void
-    {
-        parent::configure();
-        $this->setName('app:launch-fsrc')
-            ->setDescription('Directly launch the Fighting Steel Realism Console');
-    }
-
-    /**
      * @param \Symfony\Component\Console\Input\InputInterface   $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      *
      * @return int|null|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output) : void
+    public function execute(InputInterface $input, OutputInterface $output) : void
     {
         $this->output = $output;
         $this->input  = $input;
@@ -52,16 +38,17 @@ class Launcher extends Command
     }
 
     /**
-     * Display the main menu
+     * Display the menu
      */
     protected function displayMenu() : void
     {
         $menuContent = [
-            1 => 'Launch FS Name Switcher',
-            'Q' => 'Exit the application',
+            1   => 'TAS to FS',
+            2   => 'FS to TAS',
+            'R' => 'Return to main menu',
         ];
 
-        $this->output->writeln('What do you want to do?');
+        $this->output->writeln('In which direction are you switching?');
         $elementsCount = count($menuContent);
         $row           = 1;
         foreach ($menuContent as $shortcut => $label) {
@@ -89,41 +76,30 @@ class Launcher extends Command
         while (!$choiceIsCorrect) {
             switch ($menuChoice) {
                 case 1:
-                    $this->launchSubModule('TasMenu', $choiceIsCorrect);
+                    $this->output->writeln('AH');
+                    $choiceIsCorrect = true;
                     break;
-                case 'q':
-                    $this->output->writeln('Bye!');
+                case 2:
+                    $this->output->writeln('OH');
+                    $choiceIsCorrect = true;
+                    break;
+                case 'r':
+                    $this->output->writeln('');
                     $choiceIsCorrect = true;
                     break;
                 default:
-                    $this->output->writeln('Unknown choice');
                     $menuChoice = $helper->ask($this->input, $this->output, $question);
             }
         }
     }
 
     /**
-     * @param string $moduleName
-     * @param bool   $choiceIsCorrect
-     *
-     * @throws \InvalidArgumentException
+     * Configure the command
      */
-    protected function launchSubModule(string $moduleName, bool  &$choiceIsCorrect) : void
+    protected function configure() : void
     {
-        $choiceIsCorrect = true;
-        $this->output->writeln('');
-
-        switch ($moduleName) {
-            case 'TasMenu':
-                $moduleName = 'App\NameSwitcher\Console\TasMenu';
-                break;
-            default:
-                throw new \InvalidArgumentException('Unknown submodule');
-        }
-
-        /** @var \Symfony\Component\Console\Command\Command $subModule */
-        $subModule = new $moduleName();
-        $subModule->setHelperSet($this->getHelperSet());
-        $subModule->execute($this->input, $this->output);
+        parent::configure();
+        $this->setName('app:launch-fsrc-ns')
+            ->setDescription('Fighting Steel Name Switcher');
     }
 }
