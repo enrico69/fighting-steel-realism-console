@@ -27,7 +27,7 @@ class Dictionary
         $result = [];
 
         foreach ($this->dictionary as $ship) {
-            /** @var \NameSwitcher\Model\Ship $ship */
+            /** @var \App\NameSwitcher\Model\Ship $ship */
             if ($ship->matchCriteria($criteria)) {
                 $result[] = $ship;
             }
@@ -43,7 +43,7 @@ class Dictionary
     /**
      * @param array $criteria
      *
-     * @return \NameSwitcher\Model\Ship
+     * @return \App\NameSwitcher\Model\Ship
      *
      * @throws \LogicException
      * @throws \Exception
@@ -63,12 +63,17 @@ class Dictionary
      * @param string $fullPath
      * @param string $separator
      * @param int    $lineLength
+     *
+     * @throws \LogicException
      */
     public function __construct(
         string $fullPath,
         string $separator = ';',
         int $lineLength   = 1000
     ) {
+        if (!file_exists($fullPath)) {
+            throw new \LogicException('Sorry, the dictionary file has not been found');
+        }
         $this->dictionary = $this->readFile($fullPath, $separator, $lineLength);
     }
 
@@ -76,7 +81,7 @@ class Dictionary
      * @param array $criteria
      * @param bool  $random
      *
-     * @return \NameSwitcher\Model\Ship
+     * @return \App\NameSwitcher\Model\Ship
      *
      * @throws \LogicException
      * @throws \Exception

@@ -144,7 +144,10 @@ class Ship
         foreach ($similarShips as $shipString) {
             $theShip = explode('|', $shipString);
             if (count($theShip) !== 2) {
-                throw new \LogicException('Invalid string format for similar ships: ' . $similarTo);
+                throw new \LogicException(
+                    'Invalid string format for similar ships: '
+                    . $this->getType() . ' ' . $this->getTasName()
+                );
             }
             $ships[] = [
                 'class' => $theShip[0],
@@ -206,7 +209,9 @@ class Ship
     {
         $count = count($this->similarTo);
         if ($count === 0) {
-            throw new \LogicException('No similar ship found');
+            throw new \LogicException(
+                'No similar ship found for' . $this->getType() . ' ' . $this->getTasName()
+            );
         }
 
         return $this->similarTo[random_int(0, $count - 1)];

@@ -26,7 +26,7 @@ class TasToFs
     protected $classCount = [];
 
     /**
-     * @var \NameSwitcher\Model\Dictionary
+     * @var \App\NameSwitcher\Model\Dictionary
      */
     protected $dictionaryProcessor;
 
@@ -37,12 +37,11 @@ class TasToFs
 
     /**
      * TasToFs constructor.
-     * @param string $dictionaryFileName
      * @param string $obfuscateLevel
      */
-    public function __construct(string $dictionaryFileName, string $obfuscateLevel)
+    public function __construct(string $obfuscateLevel)
     {
-        $this->dictionaryProcessor = new Dictionary($dictionaryFileName);
+        $this->dictionaryProcessor = new Dictionary($this->getDictionaryFilepath());
 
         if (!in_array($obfuscateLevel, self::AUTHORIZED_SWITCH_LEVEL)) {
             throw new \LogicException('Unknown switching level');
@@ -50,7 +49,7 @@ class TasToFs
         $this->obfuscatingLevel = $obfuscateLevel;
     }
 
-    public function processScenario(string $obfuscateLevel) : void
+    public function processScenario() : void
     {
 
         $fileName = 'toto.csv';
@@ -73,6 +72,20 @@ class TasToFs
 
 
         // write in file
+    }
+
+    /**
+     * @TODO : a next release, allow to select the dictionnary
+     * from a list created from a given directory. The choice
+     * will be injected in the constructor, and the current method
+     * will be removed.
+     *
+     * @return string
+     */
+    protected function getDictionaryFilepath() : string
+    {
+        return __DIR__ . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
+            . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'dictionary.csv';
     }
 
     /**

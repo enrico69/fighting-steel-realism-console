@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use App\Core\Display\DisplayTrait;
+use App\NameSwitcher\Model\TasToFs;
 
 class TasMenu extends Command
 {
@@ -76,8 +77,7 @@ class TasMenu extends Command
 
             switch ($menuChoice) {
                 case 1:
-                    $this->output->writeln('AH');
-                    $exitApplication = true;
+                    $exitApplication = $this->tasToFsMenu();
                     break;
                 case 2:
                     $this->output->writeln('OH');
@@ -94,6 +94,59 @@ class TasMenu extends Command
     }
 
     /**
+     * @return bool
+     */
+    protected function tasToFsMenu() : bool
+    {
+        $exitApplication = false;
+        $helper          = $this->getHelper('question');
+        $question        = new Question('Which level of obfuscation: ', 'q');
+
+        while (!$exitApplication) {
+            $this->clearScreen();
+            $this->displayTasMenu();
+            $menuChoice = mb_strtolower(
+                $helper->ask($this->input, $this->output, $question)
+            );
+
+            switch ($menuChoice) {
+                case 1:
+                    $this->launchTasToFsProcess(TasToFs::SWITCH_LEVEL_BASIC);
+                    break;
+                case 2:
+                    $this->launchTasToFsProcess(TasToFs::SWITCH_LEVEL_OBFUSCATE);
+                    break;
+                case 3:
+                    $this->launchTasToFsProcess(TasToFs::SWITCH_LEVEL_OBFUSCATE_CONFUSED);
+                    break;
+                case 'r':
+                    $this->output->writeln('');
+                    $exitApplication = true;
+                    break;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Display the TAS to FS menu
+     */
+    protected function displayTasMenu() : void
+    {
+        $menuContent = [
+            1   => 'None: just switching',
+            2   => 'Switching with obfuscation',
+            3   => 'Switching with obfuscation and confusion',
+            'R' => 'Return',
+        ];
+
+        $this->outputTitle('From TAS to FS');
+        $this->output->writeln('Which level of realism?');
+        $this->outputMenu($menuContent);
+    }
+
+    /**
      * Configure the command
      */
     protected function configure() : void
@@ -101,5 +154,17 @@ class TasMenu extends Command
         parent::configure();
         $this->setName('app:launch-fsrc-ns')
             ->setDescription('Fighting Steel Name Switcher');
+    }
+
+    protected function launchTasToFsProcess($obfuscatingLevel)
+    {
+        try {
+            $module = new TasToFs($obfuscatingLevel);
+            $module->processScenario();
+        } catch (\Exception $ex) {
+            $this->clearScreen();
+            $this->output->writeln('An error occured. The exact message was:');
+            $this->output->writeln($ex->getMessage());
+        }
     }
 }
