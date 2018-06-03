@@ -124,6 +124,8 @@ class Dictionary
                 $row++;
             }
             fclose($handle);
+        } else {
+            throw new \LogicException('Impossible to open the dictionary file');
         }
 
         return $dataRead;

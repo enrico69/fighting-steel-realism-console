@@ -104,14 +104,18 @@ class TasToFs
         if ($this->obfuscatingLevel === self::SWITCH_LEVEL_BASIC) {
             $newShipName = $replacingShip->getFsName();
         } elseif ($this->obfuscatingLevel === self::SWITCH_LEVEL_OBFUSCATE) {
-            $newShipName = $replacingShip->getClass() . $this->classCount[$replacingShip->getClass()];
+            $newShipName = $replacingShip->getClass()
+                . $this->classCount[$replacingShip->getClass()];
         } elseif ($this->obfuscatingLevel === self::SWITCH_LEVEL_OBFUSCATE_CONFUSED) {
             $similarTo = $replacingShip->getRandomSimilarShip();
             $this->updateClassCount($similarTo['class']);
-            $newShipName = $similarTo['class'] . $this->classCount[$similarTo['class']];
+            $newShipName = $similarTo['class']
+                . $this->classCount[$similarTo['class']];
         } else {
             // Should never happen as it is already checked in the constructor
-            throw new \LogicException('Unknown obfuscating level: ' . $this->obfuscatingLevel);
+            throw new \LogicException(
+                'Unknown obfuscating level: ' . $this->obfuscatingLevel
+            );
         }
 
         return $newShipName;

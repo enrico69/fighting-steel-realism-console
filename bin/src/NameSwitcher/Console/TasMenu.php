@@ -80,8 +80,7 @@ class TasMenu extends Command
                     $exitApplication = $this->tasToFsMenu();
                     break;
                 case 2:
-                    $this->output->writeln('OH');
-                    $exitApplication = true;
+                    $this->FsToTas();
                     break;
                 case 'r':
                     $this->output->writeln('');
@@ -156,7 +155,10 @@ class TasMenu extends Command
             ->setDescription('Fighting Steel Name Switcher');
     }
 
-    protected function launchTasToFsProcess($obfuscatingLevel)
+    /**
+     * @param string $obfuscatingLevel
+     */
+    protected function launchTasToFsProcess($obfuscatingLevel) : void
     {
         try {
             $module = new TasToFs($obfuscatingLevel);
@@ -166,5 +168,13 @@ class TasMenu extends Command
             $this->output->writeln('An error occured. The exact message was:');
             $this->output->writeln($ex->getMessage());
         }
+    }
+
+    /**
+     * Process from FS to TAS
+     */
+    protected function FsToTas() : void
+    {
+
     }
 }
