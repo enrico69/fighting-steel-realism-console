@@ -4,7 +4,7 @@
  * @author <e.courtial30@gmail.com>
  * Date: 18-05-29
  */
-namespace App\Core\Display;
+namespace App\Core\Tools;
 
 /**
  * Trait Display
@@ -39,7 +39,7 @@ trait DisplayTrait
         $elementsCount = count($menuContent);
         $row           = 1;
         foreach ($menuContent as $shortcut => $label) {
-            $this->output->writeln("{$shortcut}- $label");
+            $this->output->writeln("{$shortcut} - $label");
             $row++;
 
             if ($row === $elementsCount) {

@@ -10,8 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
-use App\Core\Display\DisplayTrait;
-use App\Core\Model\Configuration;
+use App\Core\Tools\DisplayTrait;
 
 /**
  * Class Launcher
@@ -48,10 +47,10 @@ class Launcher extends Command
      * @return int|null|void
      *
      * @throws \InvalidArgumentException
+     * @throws \LogicException
      */
     protected function execute(InputInterface $input, OutputInterface $output) : void
     {
-        Configuration::getConfigurationFileContent();
         $this->output = $output;
         $this->input  = $input;
         $this->handleInput();

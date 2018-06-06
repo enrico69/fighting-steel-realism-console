@@ -15,11 +15,7 @@ class Configuration
     /**
      * @var string configuration file location
      */
-    public const CONFIGURATION_FILE_PATH =
-        __DIR__ . DIRECTORY_SEPARATOR
-        . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
-        . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
-        . 'configuration.cfg';
+    public const CONFIGURATION_FILENAME = 'configuration.cfg';
 
     /**
      * @var array contains the configuration file content
@@ -27,12 +23,23 @@ class Configuration
     protected static $configurationFileContent = [];
 
     /**
+     * @return string
+     */
+    public static function getRootPath(): string
+    {
+        return
+            __DIR__ . DIRECTORY_SEPARATOR
+            . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
+            . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+    }
+
+    /**
      * @return bool
      */
     public static function configFileExist() : bool
     {
         $status = false;
-        if (file_exists(self::CONFIGURATION_FILE_PATH)) {
+        if (file_exists(self::getConfigurationFilePath())) {
             $status = true;
         }
 
@@ -44,7 +51,7 @@ class Configuration
      *
      * @return array
      *
-     * @throws LogicException
+     * @throws \LogicException
      */
     public static function getConfigurationFileContent(bool $reload = false) : array
     {
@@ -62,6 +69,14 @@ class Configuration
     }
 
     /**
+     * @return string
+     */
+    protected static function getConfigurationFilePath() : string
+    {
+        return self::getRootPath() . self::CONFIGURATION_FILENAME;
+    }
+
+    /**
      * @return array
      *
      * @throws \InvalidArgumentException
@@ -71,7 +86,7 @@ class Configuration
     {
         $dataRead = [];
         $row      = 1;
-        if (($handle = fopen(self::CONFIGURATION_FILE_PATH, 'r')) !== false) {
+        if (($handle = fopen(self::getConfigurationFilePath(), 'r')) !== false) {
             while (!feof($handle)) {
                 $data = fgets($handle);
                 if (!is_string($data)) {

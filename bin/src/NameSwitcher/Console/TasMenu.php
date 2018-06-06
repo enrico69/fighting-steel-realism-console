@@ -10,12 +10,21 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
-use App\Core\Display\DisplayTrait;
+use App\Core\Tools\DisplayTrait;
+use App\Core\Tools\InputTrait;
 use App\NameSwitcher\Model\TasToFs;
+use App\Core\Model\Configuration;
+use App\NameSwitcher\Model\Dictionary\Validator as DictionaryValidator;
+use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
 
+/**
+ * Class TasMenu
+ * @package App\NameSwitcher\Console
+ */
 class TasMenu extends Command
 {
     use DisplayTrait;
+    use InputTrait;
 
     /**
      * @var OutputInterface
@@ -35,6 +44,7 @@ class TasMenu extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output) : bool
     {
+        Configuration::getConfigurationFileContent();
         $this->output = $output;
         $this->input  = $input;
 
@@ -49,6 +59,7 @@ class TasMenu extends Command
         $menuContent = [
             1   => 'TAS to FS',
             2   => 'FS to TAS',
+            3   => 'Check dictionary content',
             'R' => 'Return to main menu',
         ];
 
@@ -80,7 +91,10 @@ class TasMenu extends Command
                     $exitApplication = $this->tasToFsMenu();
                     break;
                 case 2:
-                    $this->FsToTas();
+                    $exitApplication = $this->FsToTas();
+                    break;
+                case 3:
+                    $exitApplication = $this->checkDictionary();
                     break;
                 case 'r':
                     $this->output->writeln('');
@@ -176,5 +190,27 @@ class TasMenu extends Command
     protected function FsToTas() : void
     {
 
+    }
+
+    /**
+     * @return bool
+     */
+    protected function checkDictionary() : bool
+    {
+        DictionaryValidator::validate(
+            DictionaryReader::readFile(
+                DictionaryReader::getDictionaryPath(),
+                ';',
+                1000,
+                false
+            ),
+            true
+        );
+
+        $this->clearScreen();
+        $this->output->writeln('The report has been generated');
+        $this->waitForInput();
+
+        return false;
     }
 }

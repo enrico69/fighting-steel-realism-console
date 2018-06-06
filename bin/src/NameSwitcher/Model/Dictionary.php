@@ -8,12 +8,26 @@ namespace App\NameSwitcher\Model;
 
 use App\NameSwitcher\Model\Ship;
 
+/**
+ * Class Dictionary
+ * @package App\NameSwitcher\Model
+ */
 class Dictionary
 {
     /**
      * @var Ship[]
      */
     protected $dictionary = [];
+
+    /**
+     * Dictionary constructor.
+     *
+     * @param array $readRawData
+     */
+    public function __construct(array $readRawData)
+    {
+        $this->hydrate($readRawData);
+    }
 
     /**
      * @param array $criteria
@@ -58,26 +72,6 @@ class Dictionary
     }
 
     /**
-     * Dictionary constructor.
-     *
-     * @param string $fullPath
-     * @param string $separator
-     * @param int    $lineLength
-     *
-     * @throws \LogicException
-     */
-    public function __construct(
-        string $fullPath,
-        string $separator = ';',
-        int $lineLength   = 1000
-    ) {
-        if (!file_exists($fullPath)) {
-            throw new \LogicException('Sorry, the dictionary file has not been found');
-        }
-        $this->dictionary = $this->readFile($fullPath, $separator, $lineLength);
-    }
-
-    /**
      * @param array $criteria
      * @param bool  $random
      *
@@ -102,32 +96,14 @@ class Dictionary
     }
 
     /**
-     * @param string $fullPath
-     * @param string $separator
-     * @param int    $lineLength
-     *
-     * @return Ship[]
+     * @param array $data
      */
-    protected function readFile(
-        string $fullPath,
-        string $separator,
-        int $lineLength
-    ) : array {
-        $dataRead = [];
-        $row      = 1;
-        if (($handle = fopen($fullPath, 'r')) !== false) {
-            while (($data = fgetcsv($handle, $lineLength, $separator)) !== false) {
-                if (count($data) !== Ship::FIELD_QTY) {
-                    throw new \LogicException('Invalid quantity of field in the dictionary at line' . $row);
-                }
-                $dataRead[] = $data;
-                $row++;
-            }
-            fclose($handle);
-        } else {
-            throw new \LogicException('Impossible to open the dictionary file');
+    protected function hydrate(array $data) : void
+    {
+        foreach ($data as $element) {
+            $ship = new Ship();
+            $ship->hydrate($element);
+            $this->dictionary[] = $ship;
         }
-
-        return $dataRead;
     }
 }
