@@ -66,7 +66,7 @@ class Launcher extends Command
             'Q' => 'Exit the application',
         ];
 
-        $this->outputTitle('Fighting Steel Realism Console');
+        $this->outputTitle('Fighting Steel Realism Console v1.0');
         $this->output->writeln('What do you want to do?');
         $this->outputMenu($menuContent);
     }

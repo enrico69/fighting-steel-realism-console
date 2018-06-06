@@ -7,7 +7,12 @@
 namespace App\NameSwitcher\Model;
 
 use App\NameSwitcher\Model\Dictionary;
+use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
 
+/**
+ * Class TasToFs
+ * @package App\NameSwitcher\Model
+ */
 class TasToFs
 {
     public const SWITCH_LEVEL_BASIC              = 'switch';
@@ -28,7 +33,7 @@ class TasToFs
     /**
      * @var \App\NameSwitcher\Model\Dictionary
      */
-    protected $dictionaryProcessor;
+    protected $dictionary;
 
     /**
      * @var string
@@ -41,7 +46,12 @@ class TasToFs
      */
     public function __construct(string $obfuscateLevel)
     {
-        $this->dictionaryProcessor = new Dictionary($this->getDictionaryFilepath());
+        DictionaryReader::checkFilePresence();
+        $this->dictionary = new Dictionary(
+            DictionaryReader::readFile(
+                DictionaryReader::getDictionaryPath()
+            )
+        );
 
         if (!in_array($obfuscateLevel, self::AUTHORIZED_SWITCH_LEVEL)) {
             throw new \LogicException('Unknown switching level');
@@ -75,30 +85,17 @@ class TasToFs
     }
 
     /**
-     * @TODO : a next release, allow to select the dictionnary
-     * from a list created from a given directory. The choice
-     * will be injected in the constructor, and the current method
-     * will be removed.
-     *
-     * @return string
-     */
-    protected function getDictionaryFilepath() : string
-    {
-        return __DIR__ . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
-            . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'dictionary.csv';
-    }
-
-    /**
      * @param array $criteria
      *
      * @return string
      *
-     * @throws \LogicException
+     * @throws \App\NameSwitcher\Exception\MoreThanOneShipException
+     * @throws \App\NameSwitcher\Exception\NoShipException
      * @throws \Exception
      */
     protected function getReplacementShipName(array $criteria) : string
     {
-        $replacingShip = $this->dictionaryProcessor->findOneShip($criteria);
+        $replacingShip = $this->dictionary->findOneShip($criteria);
         $this->updateClassCount($replacingShip->getClass());
 
         if ($this->obfuscatingLevel === self::SWITCH_LEVEL_BASIC) {

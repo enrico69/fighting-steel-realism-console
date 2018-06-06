@@ -115,6 +115,12 @@ class TasMenu extends Command
         $helper          = $this->getHelper('question');
         $question        = new Question('Which level of obfuscation: ', 'q');
 
+        $levelChoices = [
+            1 => TasToFs::SWITCH_LEVEL_BASIC,
+            2 => TasToFs::SWITCH_LEVEL_OBFUSCATE,
+            3 => TasToFs::SWITCH_LEVEL_OBFUSCATE_CONFUSED,
+        ];
+
         while (!$exitApplication) {
             $this->clearScreen();
             $this->displayTasMenu();
@@ -122,20 +128,11 @@ class TasMenu extends Command
                 $helper->ask($this->input, $this->output, $question)
             );
 
-            switch ($menuChoice) {
-                case 1:
-                    $this->launchTasToFsProcess(TasToFs::SWITCH_LEVEL_BASIC);
-                    break;
-                case 2:
-                    $this->launchTasToFsProcess(TasToFs::SWITCH_LEVEL_OBFUSCATE);
-                    break;
-                case 3:
-                    $this->launchTasToFsProcess(TasToFs::SWITCH_LEVEL_OBFUSCATE_CONFUSED);
-                    break;
-                case 'r':
-                    $this->output->writeln('');
-                    $exitApplication = true;
-                    break;
+            if (array_key_exists($menuChoice, $levelChoices)) {
+                $this->launchTasToFsProcess($levelChoices[$menuChoice]);
+            } elseif ($menuChoice === 'r') {
+                $this->output->writeln('');
+                $exitApplication = true;
             }
         }
 

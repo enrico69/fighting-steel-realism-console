@@ -7,6 +7,8 @@
 namespace App\NameSwitcher\Model;
 
 use App\NameSwitcher\Model\Ship;
+use App\NameSwitcher\Exception\NoShipException;
+use App\NameSwitcher\Exception\MoreThanOneShipException;
 
 /**
  * Class Dictionary
@@ -34,7 +36,7 @@ class Dictionary
      *
      * @return Ship[]
      *
-     * @throws \LogicException
+     * @throws NoShipException
      */
     public function searchInList(array $criteria) : array
     {
@@ -48,7 +50,7 @@ class Dictionary
         }
 
         if (count($result) === 0) {
-            throw new \LogicException('No ship found matching the required criteria');
+            throw new NoShipException('No ship found matching the required criteria');
         }
 
         return $result;
@@ -59,7 +61,7 @@ class Dictionary
      *
      * @return \App\NameSwitcher\Model\Ship
      *
-     * @throws \LogicException
+     * @throws NoShipException
      * @throws \Exception
      */
     public function randomWithCriteria(array $criteria) : Ship
@@ -77,7 +79,8 @@ class Dictionary
      *
      * @return \App\NameSwitcher\Model\Ship
      *
-     * @throws \LogicException
+     * @throws MoreThanOneShipException
+     * @throws NoShipException
      * @throws \Exception
      */
     public function findOneShip(array $criteria, bool $random = false) : Ship
@@ -87,7 +90,9 @@ class Dictionary
         } else {
             $result = $this->searchInList($criteria);
             if (count($result) > 1) {
-                throw new \LogicException('More than one result found for the given criteria');
+                throw new MoreThanOneShipException(
+                    'More than one result found for the given criteria'
+                );
             }
             $ship = $result[0];
         }

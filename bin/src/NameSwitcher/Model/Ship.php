@@ -6,6 +6,8 @@
  */
 namespace App\NameSwitcher\Model;
 
+use App\NameSwitcher\Exception\NoShipException;
+
 /**
  * Class Ship
  */
@@ -202,14 +204,14 @@ class Ship
     /**
      * @return array
      *
-     * @throws \LogicException
+     * @throws NoShipException
      * @throws \Exception
      */
     public function getRandomSimilarShip() : array
     {
         $count = count($this->similarTo);
         if ($count === 0) {
-            throw new \LogicException(
+            throw new NoShipException(
                 'No similar ship found for' . $this->getType() . ' ' . $this->getTasName()
             );
         }
