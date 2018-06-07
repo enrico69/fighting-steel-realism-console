@@ -6,7 +6,7 @@
  */
 namespace App\NameSwitcher\Model;
 
-use App\NameSwitcher\Model\Dictionary;
+use App\Core\Model\Configuration;
 use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
 
 /**
@@ -24,6 +24,9 @@ class TasToFs
         self::SWITCH_LEVEL_OBFUSCATE,
         self::SWITCH_LEVEL_OBFUSCATE_CONFUSED,
     ];
+
+    public const SCENARIO_FILENAME      = 'A_TAS_Scenario.scn';
+    public const SCENARIO_SAVE_FILENAME = 'A_TAS_Scenario.scn.bak';
 
     /**
      * @var array
@@ -59,29 +62,50 @@ class TasToFs
         $this->obfuscatingLevel = $obfuscateLevel;
     }
 
+    /**
+     * @return string
+     */
+    public function getScenarioFullPath() : string
+    {
+        return $this->getScenarioDirectory() . self::SCENARIO_FILENAME;
+    }
+
+    /**
+     * @return string
+     */
+    public function getScenarioCopyFullPath() : string
+    {
+        return $this->getScenarioDirectory() . self::SCENARIO_SAVE_FILENAME;
+    }
+
+    /**
+     * @throws \App\NameSwitcher\Exception\MoreThanOneShipException
+     * @throws \App\NameSwitcher\Exception\NoShipException
+     * @throws \Exception
+     *
+     * @return void
+     */
     public function processScenario() : void
     {
+        $this->makeScenarioCopy();
+        $scenarioContent = $this->readScenarioContent();
 
-        $fileName = 'toto.csv';
+        foreach ($scenarioContent as &$line) {
+            if (strpos($line, 'NAME=') === 0) {
+                //echo "Ligne: $line" . PHP_EOL;
+                $shipName = substr($line, 5);
+                //echo "Nom TAS: $shipName" . PHP_EOL;
+                $newName = $this->getReplacementShipName(
+                    ['name' => $shipName]
+                );
+                $line = $newName;
+                //echo "Nom FS: $newName" . PHP_EOL;
+            }
+            $line .= PHP_EOL;
+        }
+        unset($line);
 
-
-
-        // backup scenar
-        // load in memory
-
-
-
-        $tasShipName = 'Clemenceau';
-        $shipType    = 'BB';
-
-        $criteria = [
-            'name' => $tasShipName,
-            'type' => $shipType,
-        ];
-        $newShipName = $this->getReplacementShipName($criteria);
-
-
-        // write in file
+        $this->outputNewScenarioContent($scenarioContent);
     }
 
     /**
@@ -127,6 +151,69 @@ class TasToFs
             $this->classCount[$class]++;
         } else {
             $this->classCount[$class] = 1;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getScenarioDirectory() : string
+    {
+        return $scenarioPath = Configuration::getConfigurationFileContent()['FS-LOCATION']
+            . DIRECTORY_SEPARATOR . 'Scenarios' . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \LogicException
+     */
+    protected function makeScenarioCopy() : void
+    {
+        $status = rename(
+            $this->getScenarioFullPath(),
+            $this->getScenarioCopyFullPath()
+        );
+
+        if (!$status) {
+            throw new \LogicException('Impossible to make a copy of the scenario.');
+        }
+    }
+
+    /**
+     * @return array
+     *
+     * @throws \LogicException
+     */
+    protected function readScenarioContent() : array
+    {
+        $content = [];
+        $handle  = @fopen($this->getScenarioCopyFullPath(), 'r');
+
+        if ($handle) {
+            while (($buffer = fgets($handle, 4096)) !== false) {
+                $content[] = trim($buffer);
+            }
+            fclose($handle);
+        } else {
+            throw new \LogicException('Impossible to read the content of the scenario.');
+        }
+
+        return $content;
+    }
+
+    /**
+     * @param array $scenarioContent
+     */
+    protected function outputNewScenarioContent(array $scenarioContent) : void
+    {
+        $result = file_put_contents(
+            $this->getScenarioFullPath(),
+            $scenarioContent
+        );
+
+        if ($result === false) {
+            throw new \LogicException('Impossible to output the new scenario file.');
         }
     }
 }

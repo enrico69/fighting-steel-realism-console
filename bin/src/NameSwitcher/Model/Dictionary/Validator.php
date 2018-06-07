@@ -26,7 +26,8 @@ class Validator
      */
     public static function validate(array $rawData, $issueReport = false) : array
     {
-        $report = [];
+        $report       = [];
+        $shipNameList = [];
 
         if (count($rawData) === 0) {
             $report[] = static::getReportElement(
@@ -58,6 +59,17 @@ class Validator
                             'A field is empty'
                         );
                         break;
+                    }
+                    if ($fieldPos === 1) {
+                        if (in_array($fieldValue, $shipNameList)) {
+                            $report[] = static::getReportElement(
+                                self::STRING_GRAVITY_ERROR,
+                                $key,
+                                "There is more than one entry with the ship name '$fieldValue'"
+                            );
+                        } else {
+                            $shipNameList[] = $fieldValue;
+                        }
                     }
                 }
             }
@@ -94,6 +106,8 @@ class Validator
 
     /**
      * @param array $errorList
+     *
+     * @throws \LogicException
      */
     protected static function issueReport(array $errorList) : void
     {
@@ -105,6 +119,10 @@ class Validator
         $now = new \DateTime();
         $filename = $now->format('Y-m-d H:i:s') . '-dictionary-report.txt';
         $filename = Configuration::getRootPath() . $filename;
-        file_put_contents($filename, $errorList);
+        $result = file_put_contents($filename, $errorList);
+
+        if ($result === false) {
+            throw new \LogicException('Impossible to output the dictionary report');
+        }
     }
 }

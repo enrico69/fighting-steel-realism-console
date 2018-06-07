@@ -178,6 +178,8 @@ class TasMenu extends Command
             $this->clearScreen();
             $this->output->writeln('An error occured. The exact message was:');
             $this->output->writeln($ex->getMessage());
+            $this->output->writeln('');
+            $this->waitForInput();
         }
     }
 

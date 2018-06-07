@@ -9,6 +9,7 @@ namespace App\NameSwitcher\Model;
 use App\NameSwitcher\Model\Ship;
 use App\NameSwitcher\Exception\NoShipException;
 use App\NameSwitcher\Exception\MoreThanOneShipException;
+use App\Core\Tools\DisplayTrait;
 
 /**
  * Class Dictionary
@@ -50,7 +51,10 @@ class Dictionary
         }
 
         if (count($result) === 0) {
-            throw new NoShipException('No ship found matching the required criteria');
+            throw new NoShipException(
+                'No ship found matching the required criteria:'
+                . DisplayTrait::arrayOutput($criteria, false)
+            );
         }
 
         return $result;
@@ -91,7 +95,8 @@ class Dictionary
             $result = $this->searchInList($criteria);
             if (count($result) > 1) {
                 throw new MoreThanOneShipException(
-                    'More than one result found for the given criteria'
+                    'More than one result found for the given criteria: '
+                    . DisplayTrait::arrayOutput($criteria, false)
                 );
             }
             $ship = $result[0];

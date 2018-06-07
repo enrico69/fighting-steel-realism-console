@@ -25,9 +25,12 @@ trait DisplayTrait
      */
     protected function outputTitle(string $title) : void
     {
-        $this->output->writeln('---------------------------------');
-        $this->output->writeln(' ' . $title);
-        $this->output->writeln('---------------------------------');
+        $titleLength = mb_strlen(trim($title));
+        $border      = str_repeat('-', $titleLength + 4);
+
+        $this->output->writeln($border);
+        $this->output->writeln('  ' . $title);
+        $this->output->writeln($border);
         $this->output->writeln('');
     }
 
@@ -46,5 +49,24 @@ trait DisplayTrait
                 $this->output->writeln('');
             }
         }
+    }
+
+    /**
+     * @param array $data
+     * @param bool  $display
+     *
+     * @return string
+     */
+    public static function arrayOutput(array $data, $display = true) : string
+    {
+        $returned = '';
+        $output = '<pre>' . print_r($data, true) . '</pre>';
+        if ($display) {
+            echo $output;
+        } else {
+            $returned = $output;
+        }
+
+        return $returned;
     }
 }
