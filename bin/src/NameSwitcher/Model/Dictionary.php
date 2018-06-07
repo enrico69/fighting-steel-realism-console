@@ -112,7 +112,15 @@ class Dictionary
     {
         foreach ($data as $element) {
             $ship = new Ship();
-            $ship->hydrate($element);
+            $ship->hydrate(
+                [
+                    'Type'     => $element[0],
+                    'Class'    => $element[1],
+                    'TasName'  => $element[2],
+                    'FsName'   => $element[3],
+                    'SimilarTo'=> $element[4],
+                ]
+            );
             $this->dictionary[] = $ship;
         }
     }

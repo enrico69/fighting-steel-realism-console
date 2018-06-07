@@ -96,9 +96,9 @@ class TasToFs
                 $shipName = substr($line, 5);
                 //echo "Nom TAS: $shipName" . PHP_EOL;
                 $newName = $this->getReplacementShipName(
-                    ['name' => $shipName]
+                    ['tasName' => $shipName]
                 );
-                $line = $newName;
+                $line = 'NAME=' . $newName;
                 //echo "Nom FS: $newName" . PHP_EOL;
             }
             $line .= PHP_EOL;
@@ -129,9 +129,9 @@ class TasToFs
                 . $this->classCount[$replacingShip->getClass()];
         } elseif ($this->obfuscatingLevel === self::SWITCH_LEVEL_OBFUSCATE_CONFUSED) {
             $similarTo = $replacingShip->getRandomSimilarShip();
-            $this->updateClassCount($similarTo['class']);
-            $newShipName = $similarTo['class']
-                . $this->classCount[$similarTo['class']];
+            $this->updateClassCount($similarTo);
+            $newShipName = $similarTo
+                . $this->classCount[$similarTo];
         } else {
             // Should never happen as it is already checked in the constructor
             throw new \LogicException(

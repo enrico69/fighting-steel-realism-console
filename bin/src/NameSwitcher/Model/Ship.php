@@ -144,19 +144,8 @@ class Ship
 
         $ships = [];
         foreach ($similarShips as $shipString) {
-            $theShip = explode('|', $shipString);
-            if (count($theShip) !== 2) {
-                throw new \LogicException(
-                    'Invalid string format for similar ships: '
-                    . $this->getType() . ' ' . $this->getTasName()
-                );
-            }
-            $ships[] = [
-                'class' => $theShip[0],
-                'name'  => $theShip[1],
-            ];
+            $ships[] = $shipString;
         }
-
         $this->similarTo = $ships;
 
         return $this;
@@ -202,12 +191,12 @@ class Ship
     }
 
     /**
-     * @return array
+     * @return string
      *
      * @throws NoShipException
      * @throws \Exception
      */
-    public function getRandomSimilarShip() : array
+    public function getRandomSimilarShip() : string
     {
         $count = count($this->similarTo);
         if ($count === 0) {
