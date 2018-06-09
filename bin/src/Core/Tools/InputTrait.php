@@ -15,11 +15,17 @@ use Symfony\Component\Console\Question\Question;
 trait InputTrait
 {
     /**
+     * @param bool $displayMessage
+     *
      * @return void
      */
-    protected function waitForInput() : void
+    protected function waitForInput($displayMessage = true) : void
     {
-        $question = new Question('Press a key to return to menu.');
+        $questionLabel = '';
+        if ($displayMessage) {
+            $questionLabel = 'Press a key to return to menu.';
+        }
+        $question = new Question($questionLabel);
         $this->getHelper('question')->ask($this->input, $this->output, $question);
     }
 }

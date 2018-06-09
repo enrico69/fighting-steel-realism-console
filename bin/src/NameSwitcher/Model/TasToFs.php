@@ -27,6 +27,7 @@ class TasToFs
 
     public const SCENARIO_FILENAME      = 'A_TAS_Scenario.scn';
     public const SCENARIO_SAVE_FILENAME = 'A_TAS_Scenario.scn.bak';
+    public const SCENARIO_REVERT_FILE   = 'A_TAS_RevertDictionary.txt';
 
     /**
      * @var array
@@ -79,6 +80,14 @@ class TasToFs
     }
 
     /**
+     * @return string
+     */
+    public function getScenarioRevertDictionaryFullPath() : string
+    {
+        return $this->getScenarioDirectory() . self::SCENARIO_REVERT_FILE;
+    }
+
+    /**
      * @throws \App\NameSwitcher\Exception\MoreThanOneShipException
      * @throws \App\NameSwitcher\Exception\NoShipException
      * @throws \Exception
@@ -88,7 +97,8 @@ class TasToFs
     public function processScenario() : void
     {
         $this->makeScenarioCopy();
-        $scenarioContent = $this->readScenarioContent();
+        $scenarioContent    = $this->readScenarioContent();
+        $scenarioRevertData = [];
 
         foreach ($scenarioContent as &$line) {
             if (strpos($line, 'NAME=') === 0) {
@@ -98,7 +108,8 @@ class TasToFs
                 $newName = $this->getReplacementShipName(
                     ['tasName' => $shipName]
                 );
-                $line = 'NAME=' . $newName;
+                $line                 = 'NAME=' . $newName;
+                $scenarioRevertData[] = $newName . '|' . $shipName . PHP_EOL;
                 //echo "Nom FS: $newName" . PHP_EOL;
             }
             $line .= PHP_EOL;
@@ -106,6 +117,7 @@ class TasToFs
         unset($line);
 
         $this->outputNewScenarioContent($scenarioContent);
+        $this->outputRevertDictionary($scenarioRevertData);
     }
 
     /**
@@ -204,6 +216,8 @@ class TasToFs
 
     /**
      * @param array $scenarioContent
+     *
+     * @throws \LogicException
      */
     protected function outputNewScenarioContent(array $scenarioContent) : void
     {
@@ -214,6 +228,23 @@ class TasToFs
 
         if ($result === false) {
             throw new \LogicException('Impossible to output the new scenario file.');
+        }
+    }
+
+    /**
+     * @param array $data
+     *
+     * @throws \LogicException
+     */
+    protected function outputRevertDictionary(array $data) : void
+    {
+        $result = file_put_contents(
+            $this->getScenarioRevertDictionaryFullPath(),
+            $data
+        );
+
+        if ($result === false) {
+            throw new \LogicException('Impossible to output the revert dictionary file.');
         }
     }
 }

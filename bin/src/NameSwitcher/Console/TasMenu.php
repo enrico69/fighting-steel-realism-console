@@ -175,7 +175,9 @@ class TasMenu extends Command
             $module = new TasToFs($obfuscatingLevel);
             $module->processScenario();
             $this->clearScreen();
-            $this->output->writeln('Done.');
+            $this->output->writeln('Done. Press a key to exit');
+            $this->waitForInput(false);
+            exit;
         } catch (\Exception $ex) {
             $this->clearScreen();
             $this->output->writeln('An error occured. The exact message was:');
