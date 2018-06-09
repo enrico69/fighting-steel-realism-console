@@ -96,6 +96,7 @@ class TasToFs
      */
     public function processScenario() : void
     {
+        $this->deleteBackup();
         $this->makeScenarioCopy();
         $scenarioContent    = $this->readScenarioContent();
         $scenarioRevertData = [];
@@ -212,6 +213,33 @@ class TasToFs
         }
 
         return $content;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \LogicException
+     */
+    protected function deleteBackup() : void
+    {
+        /**
+         * The file 'A_TAS_Scenario.scn' is supposed to be manually overrided
+         * by the user. But try to delete all previously generated files.
+         */
+
+        $filesToDelete = [
+          $this->getScenarioCopyFullPath() => 'a previous scenario backup.',
+          $this->getScenarioRevertDictionaryFullPath() => 'a previous scenario revert dictionary.',
+        ];
+
+        foreach ($filesToDelete as $filePath => $errorMsg) {
+            if (file_exists($filePath)) {
+                $delete = unlink($filePath);
+                if (!$delete) {
+                    throw new \LogicException("Impossible to delete $errorMsg");
+                }
+            }
+        }
     }
 
     /**
