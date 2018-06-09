@@ -6,6 +6,7 @@
  */
 namespace App\NameSwitcher\Model;
 
+use App\NameSwitcher\Model\AbstractScenarioProcessor;
 use App\Core\Model\Directory;
 use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
 
@@ -13,7 +14,7 @@ use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
  * Class TasToFs
  * @package App\NameSwitcher\Model
  */
-class TasToFs
+class TasToFs extends AbstractScenarioProcessor
 {
     public const SWITCH_LEVEL_BASIC              = 'switch';
     public const SWITCH_LEVEL_OBFUSCATE          = 'switch_with_obfuscate';
@@ -245,7 +246,7 @@ class TasToFs
      *
      * @throws \LogicException
      */
-    protected function outputNewScenarioContent(array $scenarioContent) : void
+    protected function outputNewScenarioContent(array &$scenarioContent) : void
     {
         $result = file_put_contents(
             static::getScenarioFullPath(),
@@ -262,7 +263,7 @@ class TasToFs
      *
      * @throws \LogicException
      */
-    protected function outputRevertDictionary(array $data) : void
+    protected function outputRevertDictionary(array &$data) : void
     {
         $result = file_put_contents(
             static::getScenarioRevertDictionaryFullPath(),

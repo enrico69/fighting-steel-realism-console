@@ -88,10 +88,10 @@ class TasMenu extends Command
 
             switch ($menuChoice) {
                 case 1:
-                    $exitApplication = $this->tasToFsMenu();
+                    $this->tasToFsMenu();
                     break;
                 case 2:
-                    $exitApplication = $this->FsToTas();
+                    $this->processScenario('FsToTas');
                     break;
                 case 3:
                     $exitApplication = $this->checkDictionary();
@@ -104,6 +104,23 @@ class TasMenu extends Command
         }
 
         return false;
+    }
+
+    /**
+     * Display the TAS to FS menu
+     */
+    protected function displayTasMenu() : void
+    {
+        $menuContent = [
+            1   => 'None: just switching',
+            2   => 'Switching with obfuscation',
+            3   => 'Switching with obfuscation and confusion',
+            'R' => 'Return',
+        ];
+
+        $this->outputTitle('From TAS to FS');
+        $this->output->writeln('Which level of realism?');
+        $this->outputMenu($menuContent);
     }
 
     /**
@@ -129,7 +146,7 @@ class TasMenu extends Command
             );
 
             if (array_key_exists($menuChoice, $levelChoices)) {
-                $this->launchTasToFsProcess($levelChoices[$menuChoice]);
+                $this->processScenario('TasToFs', $levelChoices[$menuChoice]);
             } elseif ($menuChoice === 'r') {
                 $this->output->writeln('');
                 $exitApplication = true;
@@ -137,23 +154,6 @@ class TasMenu extends Command
         }
 
         return false;
-    }
-
-    /**
-     * Display the TAS to FS menu
-     */
-    protected function displayTasMenu() : void
-    {
-        $menuContent = [
-            1   => 'None: just switching',
-            2   => 'Switching with obfuscation',
-            3   => 'Switching with obfuscation and confusion',
-            'R' => 'Return',
-        ];
-
-        $this->outputTitle('From TAS to FS');
-        $this->output->writeln('Which level of realism?');
-        $this->outputMenu($menuContent);
     }
 
     /**
@@ -167,12 +167,15 @@ class TasMenu extends Command
     }
 
     /**
-     * @param string $obfuscatingLevel
+     * @param string $process
+     * @param string $param
      */
-    protected function launchTasToFsProcess($obfuscatingLevel) : void
+    protected function processScenario(string $process, string $param = '') : void
     {
         try {
-            $module = new TasToFs($obfuscatingLevel);
+            $process = 'App\NameSwitcher\Model\\' . $process;
+            /** @var \App\NameSwitcher\Model\AbstractScenarioProcessor $module */
+            $module = new $process($param);
             $module->processScenario();
             $this->clearScreen();
             $this->output->writeln('Done. Press a key to exit');
@@ -185,14 +188,6 @@ class TasMenu extends Command
             $this->output->writeln('');
             $this->waitForInput();
         }
-    }
-
-    /**
-     * Process from FS to TAS
-     */
-    protected function FsToTas() : void
-    {
-
     }
 
     /**
