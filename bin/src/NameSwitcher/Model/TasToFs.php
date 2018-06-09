@@ -6,7 +6,7 @@
  */
 namespace App\NameSwitcher\Model;
 
-use App\Core\Model\Configuration;
+use App\Core\Model\Directory;
 use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
 
 /**
@@ -103,7 +103,15 @@ class TasToFs
      */
     public static function getEndOfEngagementFullPath() : string
     {
-        return static::getScenarioDirectory() . self::SCENARIO_BATTLE_REPORT;
+        return Directory::getScenarioDirectory() . self::SCENARIO_BATTLE_REPORT;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getScenarioRevertDictionaryFullPath() : string
+    {
+        return Directory::getScenarioDirectory() . self::SCENARIO_REVERT_FILE;
     }
 
     /**
@@ -111,7 +119,7 @@ class TasToFs
      */
     protected static function getScenarioFullPath() : string
     {
-        return static::getScenarioDirectory() . self::SCENARIO_FILENAME;
+        return Directory::getScenarioDirectory() . self::SCENARIO_FILENAME;
     }
 
     /**
@@ -119,15 +127,7 @@ class TasToFs
      */
     protected static function getScenarioCopyFullPath() : string
     {
-        return static::getScenarioDirectory() . self::SCENARIO_SAVE_FILENAME;
-    }
-
-    /**
-     * @return string
-     */
-    protected static function getScenarioRevertDictionaryFullPath() : string
-    {
-        return static::getScenarioDirectory() . self::SCENARIO_REVERT_FILE;
+        return Directory::getScenarioDirectory() . self::SCENARIO_SAVE_FILENAME;
     }
 
     /**
@@ -177,15 +177,6 @@ class TasToFs
     }
 
     /**
-     * @return string
-     */
-    protected static function getScenarioDirectory() : string
-    {
-        return Configuration::getConfigurationFileContent()['FS-LOCATION']
-            . DIRECTORY_SEPARATOR . 'Scenarios' . DIRECTORY_SEPARATOR;
-    }
-
-    /**
      * @return void
      *
      * @throws \LogicException
@@ -210,7 +201,7 @@ class TasToFs
     protected function readScenarioContent() : array
     {
         $content = [];
-        $handle  = @fopen($this->getScenarioCopyFullPath(), 'r');
+        $handle  = @fopen(static::getScenarioCopyFullPath(), 'r');
 
         if ($handle) {
             while (($buffer = fgets($handle, 4096)) !== false) {
@@ -260,7 +251,7 @@ class TasToFs
     protected function outputNewScenarioContent(array $scenarioContent) : void
     {
         $result = file_put_contents(
-            $this->getScenarioFullPath(),
+            static::getScenarioFullPath(),
             $scenarioContent
         );
 
@@ -277,7 +268,7 @@ class TasToFs
     protected function outputRevertDictionary(array $data) : void
     {
         $result = file_put_contents(
-            $this->getScenarioRevertDictionaryFullPath(),
+            static::getScenarioRevertDictionaryFullPath(),
             $data
         );
 
