@@ -80,15 +80,12 @@ class TasToFs
 
         foreach ($scenarioContent as &$line) {
             if (strpos($line, 'NAME=') === 0) {
-                //echo "Ligne: $line" . PHP_EOL;
                 $shipName = substr($line, 5);
-                //echo "Nom TAS: $shipName" . PHP_EOL;
-                $newName = $this->getReplacementShipName(
+                $newName  = $this->getReplacementShipName(
                     ['tasName' => $shipName]
                 );
                 $line                 = 'NAME=' . $newName;
                 $scenarioRevertData[] = $newName . '|' . $shipName . PHP_EOL;
-                //echo "Nom FS: $newName" . PHP_EOL;
             }
             $line .= PHP_EOL;
         }
