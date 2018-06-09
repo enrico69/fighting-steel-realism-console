@@ -28,6 +28,7 @@ class TasToFs
     public const SCENARIO_FILENAME      = 'A_TAS_Scenario.scn';
     public const SCENARIO_SAVE_FILENAME = 'A_TAS_Scenario.scn.bak';
     public const SCENARIO_REVERT_FILE   = 'A_TAS_RevertDictionary.txt';
+    public const SCENARIO_BATTLE_REPORT = '_End Of Engagement.sce';
 
     /**
      * @var array
@@ -64,30 +65,6 @@ class TasToFs
     }
 
     /**
-     * @return string
-     */
-    public function getScenarioFullPath() : string
-    {
-        return $this->getScenarioDirectory() . self::SCENARIO_FILENAME;
-    }
-
-    /**
-     * @return string
-     */
-    public function getScenarioCopyFullPath() : string
-    {
-        return $this->getScenarioDirectory() . self::SCENARIO_SAVE_FILENAME;
-    }
-
-    /**
-     * @return string
-     */
-    public function getScenarioRevertDictionaryFullPath() : string
-    {
-        return $this->getScenarioDirectory() . self::SCENARIO_REVERT_FILE;
-    }
-
-    /**
      * @throws \App\NameSwitcher\Exception\MoreThanOneShipException
      * @throws \App\NameSwitcher\Exception\NoShipException
      * @throws \Exception
@@ -119,6 +96,38 @@ class TasToFs
 
         $this->outputNewScenarioContent($scenarioContent);
         $this->outputRevertDictionary($scenarioRevertData);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getEndOfEngagementFullPath() : string
+    {
+        return static::getScenarioDirectory() . self::SCENARIO_BATTLE_REPORT;
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getScenarioFullPath() : string
+    {
+        return static::getScenarioDirectory() . self::SCENARIO_FILENAME;
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getScenarioCopyFullPath() : string
+    {
+        return static::getScenarioDirectory() . self::SCENARIO_SAVE_FILENAME;
+    }
+
+    /**
+     * @return string
+     */
+    protected static function getScenarioRevertDictionaryFullPath() : string
+    {
+        return static::getScenarioDirectory() . self::SCENARIO_REVERT_FILE;
     }
 
     /**
@@ -170,9 +179,9 @@ class TasToFs
     /**
      * @return string
      */
-    protected function getScenarioDirectory() : string
+    protected static function getScenarioDirectory() : string
     {
-        return $scenarioPath = Configuration::getConfigurationFileContent()['FS-LOCATION']
+        return Configuration::getConfigurationFileContent()['FS-LOCATION']
             . DIRECTORY_SEPARATOR . 'Scenarios' . DIRECTORY_SEPARATOR;
     }
 
@@ -228,8 +237,9 @@ class TasToFs
          */
 
         $filesToDelete = [
-          $this->getScenarioCopyFullPath() => 'a previous scenario backup.',
-          $this->getScenarioRevertDictionaryFullPath() => 'a previous scenario revert dictionary.',
+            static::getScenarioCopyFullPath()             => 'a previous scenario backup.',
+            static::getScenarioRevertDictionaryFullPath() => 'a previous scenario revert dictionary.',
+            static::getEndOfEngagementFullPath()          => 'a previous end of engagement file',
         ];
 
         foreach ($filesToDelete as $filePath => $errorMsg) {
