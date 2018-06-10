@@ -63,20 +63,21 @@ class FsToTas extends AbstractScenarioProcessor
     {
         if (empty($content[$rowNumber])) {
             throw new \LogicException(
-                'The scenario revert dictionnay seems to be corrupted: '
-                . "the line numer $rowNumber seems to be missing"
+                'The scenario revert dictionary seems to be corrupted: '
+                . "the line number $rowNumber seems to be missing"
             );
         }
 
+        $key  = 0;
         $data = explode('|', $content[$rowNumber]);
-        if (empty($data[1])) {
+        if (empty($data[$key])) {
             throw new \LogicException(
-                'The scenario revert dictionnay seems to be corrupted: '
-                . "the line numer $rowNumber seems to be at the wrong format"
+                'The scenario revert dictionary seems to be corrupted: '
+                . "the line number $rowNumber seems to be at the wrong format"
             );
         }
 
-        return trim($data[1]);
+        return trim($data[$key]);
     }
 
     /**
