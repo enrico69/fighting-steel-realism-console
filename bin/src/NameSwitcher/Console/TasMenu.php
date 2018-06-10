@@ -115,6 +115,7 @@ class TasMenu extends Command
             1   => 'None: just switching',
             2   => 'Switching with obfuscation',
             3   => 'Switching with obfuscation and confusion',
+            4   => 'Let the game decide to make it more realistic',
             'R' => 'Return',
         ];
 
@@ -186,6 +187,7 @@ class TasMenu extends Command
             1 => TasToFs::SWITCH_LEVEL_BASIC,
             2 => TasToFs::SWITCH_LEVEL_OBFUSCATE,
             3 => TasToFs::SWITCH_LEVEL_OBFUSCATE_CONFUSED,
+            4 => TasToFs::SWITCH_AUTO_SELECTION,
         ];
 
         while (!$exitApplication) {

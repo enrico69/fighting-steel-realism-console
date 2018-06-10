@@ -20,6 +20,7 @@ class TasToFs extends AbstractScenarioProcessor
     public const SWITCH_LEVEL_BASIC              = 'switch';
     public const SWITCH_LEVEL_OBFUSCATE          = 'switch_with_obfuscate';
     public const SWITCH_LEVEL_OBFUSCATE_CONFUSED = 'switch_with_obfuscate_confused';
+    public const SWITCH_AUTO_SELECTION           = 'switch_auto_selection';
 
     protected const AUTHORIZED_SWITCH_LEVEL = [
         self::SWITCH_LEVEL_BASIC,
@@ -74,7 +75,7 @@ class TasToFs extends AbstractScenarioProcessor
         $this->side             = $param['side'];
 
         if (!in_array($this->obfuscatingLevel, self::AUTHORIZED_SWITCH_LEVEL)) {
-            throw new \LogicException('Unknown switching level');
+            $this->obfuscatingLevel = self::SWITCH_AUTO_SELECTION;
         }
         if (!in_array($this->side, self::AUTHORIZED_SIDES)) {
             throw new \LogicException('Unknown side');
@@ -92,10 +93,15 @@ class TasToFs extends AbstractScenarioProcessor
     {
         $this->deleteBackup();
         $this->makeScenarioCopy();
+
         $scenarioContent = File::readTextFileContent(
             static::getScenarioCopyFullPath(),
             'scenario backup file'
         );
+
+        if ($this->obfuscatingLevel === self::SWITCH_AUTO_SELECTION) {
+            $this->obfuscatingLevel = $this->selectSwitchingMode($scenarioContent);
+        }
 
         $scenarioRevertData      = [];
         $switchOnly              = false;
@@ -309,5 +315,58 @@ class TasToFs extends AbstractScenarioProcessor
         if ($result === false) {
             throw new \LogicException('Impossible to output the revert dictionary file.');
         }
+    }
+
+    /**
+     * @param array $scenarioContent
+     *
+     * @return string
+     */
+    protected function selectSwitchingMode(array $scenarioContent) : string
+    {
+        $green   = 0;
+        $average = 0;
+        $veteran = 0;
+
+        $mySide = false;
+
+        foreach ($scenarioContent as $line) {
+            if (strpos($line, 'SIDE=') === 0) {
+                $currentSide = substr($line, 5);
+                $mySide = $currentSide === $this->side ? true:false;
+            }
+            if (strpos($line, 'CREWQUALITY=') === 0 && $mySide) {
+                $crewLevel = substr($line, 12);
+                switch ($crewLevel) {
+                    case 'Green':
+                        $green++;
+                        break;
+                    case 'Average':
+                        $average++;
+                        break;
+                    case 'Veteran':
+                        $veteran++;
+                        break;
+                    default:
+                        $green++;
+                }
+            }
+        }
+
+        $total = $green + $average + $veteran;
+        $value = $green + $average * 2 + $veteran * 3;
+        $moy   = $value / $total;
+
+        if ($moy >= 0 && $moy < 1.5) {
+            $status = self::SWITCH_LEVEL_OBFUSCATE_CONFUSED;
+        } elseif ($moy >= 1.5 && $moy < 2.5) {
+            $status = self::SWITCH_LEVEL_OBFUSCATE;
+        } elseif ($moy >= 2.5) {
+            $status = self::SWITCH_LEVEL_BASIC;
+        } else {
+            $status = self::SWITCH_LEVEL_OBFUSCATE_CONFUSED;
+        }
+
+        return $status;
     }
 }
