@@ -96,8 +96,12 @@ class TasToFs extends AbstractScenarioProcessor
             static::getScenarioCopyFullPath(),
             'scenario backup file'
         );
-        $scenarioRevertData = [];
-        $switchOnly         = false;
+
+        $scenarioRevertData      = [];
+        $switchOnly              = false;
+        $currentShipTasName      = '';
+        $currentShipNewName      = '';
+        $currentShipNewShortName = '';
 
         foreach ($scenarioContent as &$line) {
             if (strpos($line, 'SIDE=') === 0) {
@@ -105,13 +109,34 @@ class TasToFs extends AbstractScenarioProcessor
                 $switchOnly = $currentSide === $this->side ? true:false;
             }
             if (strpos($line, 'NAME=') === 0) {
-                $shipName = substr($line, 5);
-                $newName  = $this->getReplacementShipName(
-                    ['tasName' => $shipName],
+                $currentShipTasName     = substr($line, 5);
+                $realObfuscatingLevel   = $this->obfuscatingLevel;
+                $this->obfuscatingLevel = self::SWITCH_LEVEL_BASIC;
+                $currentShipNewName  = $this->getReplacementShipName(
+                    ['tasName' => $currentShipTasName],
                     $switchOnly
                 );
-                $line                 = 'NAME=' . $newName;
-                $scenarioRevertData[] = $newName . '|' . $shipName . PHP_EOL;
+                $this->obfuscatingLevel = $realObfuscatingLevel;
+                $line                   = 'NAME=' . $currentShipNewName;
+            }
+            if (strpos($line, 'SHORTNAME=') === 0) {
+                $currentShipShortName     = substr($line, 10);
+                $shortNameToSave          = $currentShipShortName;
+                if ($this->obfuscatingLevel != self::SWITCH_LEVEL_BASIC && !$switchOnly) {
+                    $currentShipNewShortName  = $this->getReplacementShipName(
+                        ['tasName' => $currentShipShortName],
+                        $switchOnly,
+                        false
+                    );
+                    $line            = 'SHORTNAME=' . $currentShipNewShortName;
+                    $shortNameToSave = $currentShipNewShortName;
+                }
+                $scenarioRevertData[] =
+                    $currentShipTasName
+                    . '|' . $currentShipNewName
+                    . '|' . $currentShipShortName
+                    . '|' . $shortNameToSave
+                    . PHP_EOL;
             }
             $line .= PHP_EOL;
         }
@@ -119,7 +144,6 @@ class TasToFs extends AbstractScenarioProcessor
 
         $this->outputNewScenarioContent($scenarioContent);
         $this->outputRevertDictionary($scenarioRevertData);
-        die('DONE');
     }
 
     /**
@@ -157,6 +181,7 @@ class TasToFs extends AbstractScenarioProcessor
     /**
      * @param array $criteria
      * @param bool  $switchOnly
+     * @param bool  $updateCount
      *
      * @return string
      *
@@ -164,10 +189,16 @@ class TasToFs extends AbstractScenarioProcessor
      * @throws \App\NameSwitcher\Exception\NoShipException
      * @throws \Exception
      */
-    protected function getReplacementShipName(array $criteria, bool $switchOnly) : string
-    {
+    protected function getReplacementShipName(
+        array $criteria,
+        bool $switchOnly,
+        bool $updateCount = true
+    ) : string {
+
         $replacingShip = $this->dictionary->findOneShip($criteria);
-        $this->updateClassCount($replacingShip->getClass());
+        if ($updateCount) {
+            $this->updateClassCount($replacingShip->getClass());
+        }
 
         if ($this->obfuscatingLevel === self::SWITCH_LEVEL_BASIC || $switchOnly) {
             $newShipName = $replacingShip->getFsName();
