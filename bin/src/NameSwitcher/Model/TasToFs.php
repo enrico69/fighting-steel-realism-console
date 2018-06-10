@@ -9,6 +9,7 @@ namespace App\NameSwitcher\Model;
 use App\NameSwitcher\Model\AbstractScenarioProcessor;
 use App\Core\Model\Directory;
 use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
+use App\Core\Model\File;
 
 /**
  * Class TasToFs
@@ -76,7 +77,10 @@ class TasToFs extends AbstractScenarioProcessor
     {
         $this->deleteBackup();
         $this->makeScenarioCopy();
-        $scenarioContent    = $this->readScenarioContent();
+        $scenarioContent = File::readTextFileContent(
+            static::getScenarioCopyFullPath(),
+            'scenario backup file'
+        );
         $scenarioRevertData = [];
 
         foreach ($scenarioContent as &$line) {
@@ -189,28 +193,6 @@ class TasToFs extends AbstractScenarioProcessor
         if (!$status) {
             throw new \LogicException('Impossible to make a copy of the scenario.');
         }
-    }
-
-    /**
-     * @return array
-     *
-     * @throws \LogicException
-     */
-    protected function readScenarioContent() : array
-    {
-        $content = [];
-        $handle  = @fopen(static::getScenarioCopyFullPath(), 'r');
-
-        if ($handle) {
-            while (($buffer = fgets($handle, 4096)) !== false) {
-                $content[] = trim($buffer);
-            }
-            fclose($handle);
-        } else {
-            throw new \LogicException('Impossible to read the content of the scenario.');
-        }
-
-        return $content;
     }
 
     /**

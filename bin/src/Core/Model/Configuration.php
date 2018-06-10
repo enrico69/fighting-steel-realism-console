@@ -6,6 +6,8 @@
  */
 namespace App\Core\Model;
 
+use App\Core\Model\Directory;
+
 /**
  * Class Configuration
  * @package App\Core\Model
@@ -21,17 +23,6 @@ class Configuration
      * @var array contains the configuration file content
      */
     protected static $configurationFileContent = [];
-
-    /**
-     * @return string
-     */
-    public static function getRootPath(): string
-    {
-        return
-            __DIR__ . DIRECTORY_SEPARATOR
-            . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
-            . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
-    }
 
     /**
      * @return bool
@@ -73,7 +64,7 @@ class Configuration
      */
     protected static function getConfigurationFilePath() : string
     {
-        return self::getRootPath() . self::CONFIGURATION_FILENAME;
+        return Directory::getRootPath() . self::CONFIGURATION_FILENAME;
     }
 
     /**

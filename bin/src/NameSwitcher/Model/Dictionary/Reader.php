@@ -7,7 +7,7 @@
 namespace App\NameSwitcher\Model\Dictionary;
 
 use App\NameSwitcher\Model\Ship;
-use App\Core\Model\Configuration;
+use App\Core\Model\Directory;
 
 /**
  * Class Reader
@@ -67,6 +67,6 @@ class Reader
      */
     public static function getDictionaryPath() : string
     {
-        return Configuration::getRootPath() . 'dictionary.csv';
+        return Directory::getRootPath() . 'dictionary.csv';
     }
 }

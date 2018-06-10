@@ -6,7 +6,7 @@
  */
 namespace App\NameSwitcher\Model\Dictionary;
 
-use App\Core\Model\Configuration;
+use App\Core\Model\Directory;
 use App\NameSwitcher\Model\Ship;
 
 /**
@@ -118,7 +118,7 @@ class Validator
 
         $now = new \DateTime();
         $filename = $now->format('Y-m-d H:i:s') . '-dictionary-report.txt';
-        $filename = Configuration::getRootPath() . $filename;
+        $filename = Directory::getRootPath() . $filename;
         $result = file_put_contents($filename, $errorList);
 
         if ($result === false) {

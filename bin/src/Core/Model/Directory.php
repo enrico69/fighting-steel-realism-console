@@ -15,6 +15,17 @@ class Directory
     /**
      * @return string
      */
+    public static function getRootPath(): string
+    {
+        return
+            __DIR__ . DIRECTORY_SEPARATOR
+            . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR
+            . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * @return string
+     */
     public static function getScenarioDirectory() : string
     {
         return Configuration::getConfigurationFileContent()['FS-LOCATION']

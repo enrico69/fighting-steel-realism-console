@@ -9,6 +9,7 @@ namespace App\NameSwitcher\Model;
 use App\NameSwitcher\Model\AbstractScenarioProcessor;
 use App\Core\Model\Directory;
 use App\NameSwitcher\Model\TasToFs;
+use App\Core\Model\File;
 
 /**
  * Class FsToTas
@@ -27,11 +28,11 @@ class FsToTas extends AbstractScenarioProcessor
     {
         $this->saveBattleReportCopy();
 
-        $revertContent = $this->getAfterScenarioFileContent(
+        $revertContent = File::readTextFileContent(
             static::getBattleReportCopyFullpath(),
             'battle report copy'
         );
-        $revertDictionaryContent = $this->getAfterScenarioFileContent(
+        $revertDictionaryContent = File::readTextFileContent(
             TasToFs::getScenarioRevertDictionaryFullPath(),
             'scenario revert dictionary'
         );
@@ -118,30 +119,5 @@ class FsToTas extends AbstractScenarioProcessor
         if ($result === false) {
             throw new \LogicException('Impossible to output the new battle report file.');
         }
-    }
-
-    /**
-     * @param string $filename
-     * @param string $label
-     *
-     * @return array
-     *
-     * @throws \LogicException
-     */
-    protected function getAfterScenarioFileContent(string $filename, string $label) : array
-    {
-        $content = [];
-        $handle  = @fopen($filename, 'r');
-
-        if ($handle) {
-            while (($buffer = fgets($handle, 4096)) !== false) {
-                $content[] = trim($buffer);
-            }
-            fclose($handle);
-        } else {
-            throw new \LogicException("Impossible to read the content of the {$label}.");
-        }
-
-        return $content;
     }
 }
