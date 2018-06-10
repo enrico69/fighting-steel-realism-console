@@ -88,7 +88,7 @@ class TasMenu extends Command
 
             switch ($menuChoice) {
                 case 1:
-                    $this->tasToFsMenu();
+                    $this->tasToFsSideMenu();
                     break;
                 case 2:
                     $this->processScenario('FsToTas');
@@ -124,9 +124,59 @@ class TasMenu extends Command
     }
 
     /**
+     * Display the TAS to FS menu
+     */
+    protected function displayChooseSideMenu() : void
+    {
+        $menuContent = [
+            1   => 'Allied',
+            2   => 'Axis',
+            'R' => 'Return',
+        ];
+
+        $this->outputTitle('From TAS to FS');
+        $this->output->writeln('What is your side?');
+        $this->outputMenu($menuContent);
+    }
+
+    /**
      * @return bool
      */
-    protected function tasToFsMenu() : bool
+    protected function tasToFsSideMenu() : bool
+    {
+        $exitApplication = false;
+        $helper          = $this->getHelper('question');
+        $question        = new Question('Which is your side: ', 'q');
+
+        $levelChoices = [
+            1 => 'Blue',
+            2 => 'Red',
+        ];
+
+        while (!$exitApplication) {
+            $this->clearScreen();
+            $this->displayChooseSideMenu();
+            $menuChoice = mb_strtolower(
+                $helper->ask($this->input, $this->output, $question)
+            );
+
+            if (array_key_exists($menuChoice, $levelChoices)) {
+                $this->tasToFsMenu($levelChoices[$menuChoice]);
+            } elseif ($menuChoice === 'r') {
+                $this->output->writeln('');
+                $exitApplication = true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $side
+     *
+     * @return bool
+     */
+    protected function tasToFsMenu(string $side) : bool
     {
         $exitApplication = false;
         $helper          = $this->getHelper('question');
@@ -146,7 +196,10 @@ class TasMenu extends Command
             );
 
             if (array_key_exists($menuChoice, $levelChoices)) {
-                $this->processScenario('TasToFs', $levelChoices[$menuChoice]);
+                $this->processScenario(
+                    'TasToFs',
+                    ['level' => $levelChoices[$menuChoice], 'side' => $side]
+                );
             } elseif ($menuChoice === 'r') {
                 $this->output->writeln('');
                 $exitApplication = true;
@@ -168,9 +221,9 @@ class TasMenu extends Command
 
     /**
      * @param string $process
-     * @param string $param
+     * @param array  $param
      */
-    protected function processScenario(string $process, string $param = '') : void
+    protected function processScenario(string $process, array $param = []) : void
     {
         try {
             $process = 'App\NameSwitcher\Model\\' . $process;

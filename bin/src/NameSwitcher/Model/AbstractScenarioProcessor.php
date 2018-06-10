@@ -15,9 +15,9 @@ abstract class AbstractScenarioProcessor
     /**
      * AbstractProcessor constructor.
      *
-     * @param string $param
+     * @param array $param
      */
-    public function __construct(string $param)
+    public function __construct(array $param)
     {
         // To be overrided if necessary
     }

@@ -21,10 +21,15 @@ class TasToFs extends AbstractScenarioProcessor
     public const SWITCH_LEVEL_OBFUSCATE          = 'switch_with_obfuscate';
     public const SWITCH_LEVEL_OBFUSCATE_CONFUSED = 'switch_with_obfuscate_confused';
 
-    private const AUTHORIZED_SWITCH_LEVEL = [
+    protected const AUTHORIZED_SWITCH_LEVEL = [
         self::SWITCH_LEVEL_BASIC,
         self::SWITCH_LEVEL_OBFUSCATE,
         self::SWITCH_LEVEL_OBFUSCATE_CONFUSED,
+    ];
+
+    protected const AUTHORIZED_SIDES = [
+        'Blue',
+        'Red',
     ];
 
     public const SCENARIO_FILENAME      = 'A_TAS_Scenario.scn';
@@ -48,10 +53,15 @@ class TasToFs extends AbstractScenarioProcessor
     protected $obfuscatingLevel = '';
 
     /**
-     * TasToFs constructor.
-     * @param string $obfuscateLevel
+     * @var string
      */
-    public function __construct(string $obfuscateLevel)
+    protected $side = '';
+
+    /**
+     * TasToFs constructor.
+     * @param array $param
+     */
+    public function __construct(array $param)
     {
         DictionaryReader::checkFilePresence();
         $this->dictionary = new Dictionary(
@@ -60,10 +70,15 @@ class TasToFs extends AbstractScenarioProcessor
             )
         );
 
-        if (!in_array($obfuscateLevel, self::AUTHORIZED_SWITCH_LEVEL)) {
+        $this->obfuscatingLevel = $param['level'];
+        $this->side             = $param['side'];
+
+        if (!in_array($this->obfuscatingLevel, self::AUTHORIZED_SWITCH_LEVEL)) {
             throw new \LogicException('Unknown switching level');
         }
-        $this->obfuscatingLevel = $obfuscateLevel;
+        if (!in_array($this->side, self::AUTHORIZED_SIDES)) {
+            throw new \LogicException('Unknown side');
+        }
     }
 
     /**
