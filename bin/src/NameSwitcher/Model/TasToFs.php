@@ -97,12 +97,18 @@ class TasToFs extends AbstractScenarioProcessor
             'scenario backup file'
         );
         $scenarioRevertData = [];
+        $switchOnly         = false;
 
         foreach ($scenarioContent as &$line) {
+            if (strpos($line, 'SIDE=') === 0) {
+                $currentSide = substr($line, 5);
+                $switchOnly = $currentSide === $this->side ? true:false;
+            }
             if (strpos($line, 'NAME=') === 0) {
                 $shipName = substr($line, 5);
                 $newName  = $this->getReplacementShipName(
-                    ['tasName' => $shipName]
+                    ['tasName' => $shipName],
+                    $switchOnly
                 );
                 $line                 = 'NAME=' . $newName;
                 $scenarioRevertData[] = $newName . '|' . $shipName . PHP_EOL;
@@ -113,6 +119,7 @@ class TasToFs extends AbstractScenarioProcessor
 
         $this->outputNewScenarioContent($scenarioContent);
         $this->outputRevertDictionary($scenarioRevertData);
+        die('DONE');
     }
 
     /**
@@ -149,6 +156,7 @@ class TasToFs extends AbstractScenarioProcessor
 
     /**
      * @param array $criteria
+     * @param bool  $switchOnly
      *
      * @return string
      *
@@ -156,12 +164,12 @@ class TasToFs extends AbstractScenarioProcessor
      * @throws \App\NameSwitcher\Exception\NoShipException
      * @throws \Exception
      */
-    protected function getReplacementShipName(array $criteria) : string
+    protected function getReplacementShipName(array $criteria, bool $switchOnly) : string
     {
         $replacingShip = $this->dictionary->findOneShip($criteria);
         $this->updateClassCount($replacingShip->getClass());
 
-        if ($this->obfuscatingLevel === self::SWITCH_LEVEL_BASIC) {
+        if ($this->obfuscatingLevel === self::SWITCH_LEVEL_BASIC || $switchOnly) {
             $newShipName = $replacingShip->getFsName();
         } elseif ($this->obfuscatingLevel === self::SWITCH_LEVEL_OBFUSCATE) {
             $newShipName = $replacingShip->getClass()
