@@ -1,1 +1,3 @@
-php bin/bin/console app:launch-fsrc
+cd php
+php.exe ../bin/bin/console app:launch-fsrc
+pause
