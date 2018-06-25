@@ -250,7 +250,7 @@ class TasMenu extends Command
      */
     protected function checkDictionary() : bool
     {
-        DictionaryValidator::validate(
+        $result = DictionaryValidator::validate(
             DictionaryReader::readFile(
                 DictionaryReader::getDictionaryPath(),
                 ';',
@@ -261,7 +261,14 @@ class TasMenu extends Command
         );
 
         $this->clearScreen();
-        $this->output->writeln('The report has been generated');
+        if (empty($result)) {
+            $this->output->writeln('Everything seems to be fine!');
+        } else {
+            $msg = 'Something was found wrong in the dictionary.'
+                . 'The report has been generated';
+            $this->output->writeln($msg);
+        }
+
         $this->waitForInput();
 
         return false;

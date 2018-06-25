@@ -17,6 +17,7 @@ trait DisplayTrait
      */
     protected function clearScreen() : void
     {
+        // Does not work on windows... Damned!
         $this->output->write(sprintf("\033\143"));
     }
 

@@ -60,7 +60,7 @@ class Validator
                         );
                         break;
                     }
-                    if ($fieldPos === 1) {
+                    if ($fieldPos === 2) {
                         if (in_array($fieldValue, $shipNameList)) {
                             $report[] = static::getReportElement(
                                 self::STRING_GRAVITY_ERROR,
@@ -85,7 +85,7 @@ class Validator
             // @Todo : add the verification that the FS Name really exists in the game
         }
 
-        if ($issueReport) {
+        if ($issueReport && !empty($report)) {
             static::issueReport($report);
         }
 
@@ -116,8 +116,10 @@ class Validator
         }
         unset($line);
 
-        $now = new \DateTime();
-        $filename = $now->format('Y-m-d H:i:s') . '-dictionary-report.txt';
+        $now  = new \DateTime();
+        $date = $now->format('Y-m-d H:i:s');
+        $date = str_replace([' ', ':'], ['-', '-'], $date);
+        $filename = $date . '-dictionary-report.txt';
         $filename = Directory::getRootPath() . $filename;
         $result = file_put_contents($filename, $errorList);
 

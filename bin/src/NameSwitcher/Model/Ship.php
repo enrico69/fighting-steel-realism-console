@@ -13,6 +13,8 @@ use App\NameSwitcher\Exception\NoShipException;
  */
 class Ship
 {
+    public const SHORT_NAME_MAX_LENGTH = 10;
+
     /**
      * @var string
      */

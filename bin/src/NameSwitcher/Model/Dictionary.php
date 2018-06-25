@@ -23,6 +23,18 @@ class Dictionary
     protected $dictionary = [];
 
     /**
+     * $var string[]
+     */
+    public const FIELDS_NAME =
+        [
+            'Type',
+            'Class',
+            'TasName',
+            'FsName',
+            'SimilarTo',
+        ];
+
+    /**
      * Dictionary constructor.
      *
      * @param array $readRawData
@@ -112,15 +124,11 @@ class Dictionary
     {
         foreach ($data as $element) {
             $ship = new Ship();
-            $ship->hydrate(
-                [
-                    'Type'     => $element[0],
-                    'Class'    => $element[1],
-                    'TasName'  => $element[2],
-                    'FsName'   => $element[3],
-                    'SimilarTo'=> $element[4],
-                ]
-            );
+            $dataToInject = [];
+            foreach (self::FIELDS_NAME as $key => $value) {
+                $dataToInject[$value] = $element[$key];
+            }
+            $ship->hydrate($dataToInject);
             $this->dictionary[] = $ship;
         }
     }

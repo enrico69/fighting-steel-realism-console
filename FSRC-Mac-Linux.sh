@@ -1,1 +1,0 @@
-php bin/bin/console app:launch-fsrc

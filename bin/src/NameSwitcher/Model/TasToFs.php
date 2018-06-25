@@ -107,7 +107,6 @@ class TasToFs extends AbstractScenarioProcessor
         $switchOnly              = false;
         $currentShipTasName      = '';
         $currentShipNewName      = '';
-        $currentShipNewShortName = '';
 
         foreach ($scenarioContent as &$line) {
             if (strpos($line, 'SIDE=') === 0) {
@@ -128,11 +127,12 @@ class TasToFs extends AbstractScenarioProcessor
             if (strpos($line, 'SHORTNAME=') === 0) {
                 $currentShipShortName     = substr($line, 10);
                 $shortNameToSave          = $currentShipShortName;
+                // If basic switch: keep the same short name, otherwise search it:
                 if ($this->obfuscatingLevel != self::SWITCH_LEVEL_BASIC && !$switchOnly) {
                     $currentShipNewShortName  = $this->getReplacementShipName(
-                        ['tasName' => $currentShipShortName],
+                        ['tasName' => $currentShipTasName],
                         $switchOnly,
-                        false
+                        true
                     );
                     $line            = 'SHORTNAME=' . $currentShipNewShortName;
                     $shortNameToSave = $currentShipNewShortName;
@@ -202,17 +202,23 @@ class TasToFs extends AbstractScenarioProcessor
     ) : string {
 
         $replacingShip = $this->dictionary->findOneShip($criteria);
+        $shortenedClassName = $this->shortenName($replacingShip->getClass());
         if ($updateCount) {
-            $this->updateClassCount($replacingShip->getClass());
+            $this->updateClassCount($shortenedClassName);
         }
 
+        /**
+         * The basic switch can occur:
+         * - when the user real want this name (no obfuscation)
+         * - or when the ship really exists in FS (so return the real name which is the same)
+         */
         if ($this->obfuscatingLevel === self::SWITCH_LEVEL_BASIC || $switchOnly) {
             $newShipName = $replacingShip->getFsName();
         } elseif ($this->obfuscatingLevel === self::SWITCH_LEVEL_OBFUSCATE) {
-            $newShipName = $replacingShip->getClass()
-                . $this->classCount[$replacingShip->getClass()];
+            $newShipName = $shortenedClassName
+                . $this->classCount[$shortenedClassName];
         } elseif ($this->obfuscatingLevel === self::SWITCH_LEVEL_OBFUSCATE_CONFUSED) {
-            $similarTo = $replacingShip->getRandomSimilarShip();
+            $similarTo = $this->shortenName($replacingShip->getRandomSimilarShip());
             $this->updateClassCount($similarTo);
             $newShipName = $similarTo
                 . $this->classCount[$similarTo];
@@ -224,6 +230,21 @@ class TasToFs extends AbstractScenarioProcessor
         }
 
         return $newShipName;
+    }
+
+    /**
+     * @param string $string
+     *
+     * @return string
+     */
+    protected function shortenName(string $string) : string
+    {
+        $maxLength = Ship::SHORT_NAME_MAX_LENGTH;
+        if ($this->obfuscatingLevel !== self::SWITCH_LEVEL_BASIC) {
+            $maxLength -= 3;
+        }
+
+        return substr($string, 0, $maxLength);
     }
 
     /**
@@ -263,7 +284,7 @@ class TasToFs extends AbstractScenarioProcessor
     protected function deleteBackup() : void
     {
         /**
-         * The file 'A_TAS_Scenario.scn' is supposed to be manually overrided
+         * The file 'A_TAS_Scenario.scn' is supposed to be manually override
          * by the user. But try to delete all previously generated files.
          */
 
