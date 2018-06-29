@@ -6,8 +6,9 @@
  */
 namespace App\NameSwitcher\Model\Dictionary;
 
-use App\Core\Model\Directory;
 use App\NameSwitcher\Model\Ship;
+use App\NameSwitcher\Model\Dictionary\Report;
+use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
 
 /**
  * Class Validator
@@ -15,23 +16,20 @@ use App\NameSwitcher\Model\Ship;
  */
 class Validator
 {
-    const STRING_GRAVITY_NOTICE = 'Notice';
-    const STRING_GRAVITY_ERROR  = 'Error';
-
     /**
      * @param array $rawData
      * @param bool  $issueReport
      *
      * @return array
      */
-    public static function validate(array $rawData, $issueReport = false) : array
+    public static function validate(array $rawData, bool $issueReport = false) : array
     {
         $report       = [];
         $shipNameList = [];
 
         if (count($rawData) === 0) {
-            $report[] = static::getReportElement(
-                self::STRING_GRAVITY_NOTICE,
+            $report[] = Report::getReportElement(
+                Report::STRING_GRAVITY_NOTICE,
                 0,
                 'Dictionary is empty'
             );
@@ -42,8 +40,8 @@ class Validator
             $key++;
 
             if ($elementSize !== Ship::FIELD_QTY) {
-                $report[] = static::getReportElement(
-                    self::STRING_GRAVITY_ERROR,
+                $report[] = Report::getReportElement(
+                    Report::STRING_GRAVITY_ERROR,
                     $key,
                     'Invalid quantity of field'
                 );
@@ -53,8 +51,8 @@ class Validator
             foreach ($element as $fieldPos => $fieldValue) {
                 if ($fieldPos !== $elementSize) { // 'Similar to' field is optional
                     if (mb_strlen(trim($fieldValue)) === 0) {
-                        $report[] = static::getReportElement(
-                            self::STRING_GRAVITY_ERROR,
+                        $report[] = Report::getReportElement(
+                            Report::STRING_GRAVITY_ERROR,
                             $key,
                             'A field is empty'
                         );
@@ -62,8 +60,8 @@ class Validator
                     }
                     if ($fieldPos === 2) {
                         if (in_array($fieldValue, $shipNameList)) {
-                            $report[] = static::getReportElement(
-                                self::STRING_GRAVITY_ERROR,
+                            $report[] = Report::getReportElement(
+                                Report::STRING_GRAVITY_ERROR,
                                 $key,
                                 "There is more than one entry with the ship name '$fieldValue'"
                             );
@@ -75,8 +73,8 @@ class Validator
             }
 
             if (mb_strlen(trim($element[$elementSize])) === 0) {
-                $report[] = static::getReportElement(
-                    self::STRING_GRAVITY_NOTICE,
+                $report[] = Report::getReportElement(
+                    Report::STRING_GRAVITY_NOTICE,
                     $key,
                     'There is not similar ships given'
                 );
@@ -86,45 +84,31 @@ class Validator
         }
 
         if ($issueReport && !empty($report)) {
-            static::issueReport($report);
+            Report::issueReport($report);
         }
 
         return $report;
     }
 
     /**
-     * @param string $gravity
-     * @param int    $line
-     * @param string $message
+     * Validate the standard dictionary (at the root of the application).
+     * Should be removed when the feature allowing to selected a dictionary
+     * will be implemented.
      *
-     * @return string
-     */
-    protected static function getReportElement($gravity, $line, $message) : string
-    {
-        return "$gravity at line {$line}: $message";
-    }
-
-    /**
-     * @param array $errorList
+     * @param bool $generateReport
      *
-     * @throws \LogicException
+     * @return array
      */
-    protected static function issueReport(array $errorList) : void
+    public static function validateStandardDictionary(bool $generateReport) : array
     {
-        foreach ($errorList as &$line) {
-            $line .= PHP_EOL;
-        }
-        unset($line);
-
-        $now  = new \DateTime();
-        $date = $now->format('Y-m-d H:i:s');
-        $date = str_replace([' ', ':'], ['-', '-'], $date);
-        $filename = $date . '-dictionary-report.txt';
-        $filename = Directory::getRootPath() . $filename;
-        $result = file_put_contents($filename, $errorList);
-
-        if ($result === false) {
-            throw new \LogicException('Impossible to output the dictionary report');
-        }
+        return static::validate(
+            DictionaryReader::readFile(
+                DictionaryReader::getDictionaryPath(),
+                ';',
+                1000,
+                false
+            ),
+            $generateReport
+        );
     }
 }

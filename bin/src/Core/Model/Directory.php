@@ -31,4 +31,13 @@ class Directory
         return Configuration::getConfigurationFileContent()['FS-LOCATION']
             . DIRECTORY_SEPARATOR . 'Scenarios' . DIRECTORY_SEPARATOR;
     }
+
+    /**
+     * @return string
+     */
+    public static function getTasScenarioDirectory() : string
+    {
+        return Configuration::getConfigurationFileContent()['TAS-LOCATION']
+            . DIRECTORY_SEPARATOR;
+    }
 }

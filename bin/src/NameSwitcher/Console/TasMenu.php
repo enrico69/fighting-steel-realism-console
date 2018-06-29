@@ -6,6 +6,7 @@
  */
 namespace App\NameSwitcher\Console;
 
+use App\NameSwitcher\Model\Dictionary\ScenarioValidator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,7 +16,6 @@ use App\Core\Tools\InputTrait;
 use App\NameSwitcher\Model\TasToFs;
 use App\Core\Model\Configuration;
 use App\NameSwitcher\Model\Dictionary\Validator as DictionaryValidator;
-use App\NameSwitcher\Model\Dictionary\Reader as DictionaryReader;
 
 /**
  * Class TasMenu
@@ -60,6 +60,7 @@ class TasMenu extends Command
             1   => 'TAS to FS',
             2   => 'FS to TAS',
             3   => 'Check dictionary content',
+            4   => 'Check dictionary content against a given TAS scenario',
             'R' => 'Return to main menu',
         ];
 
@@ -95,6 +96,9 @@ class TasMenu extends Command
                     break;
                 case 3:
                     $exitApplication = $this->checkDictionary();
+                    break;
+                case 4:
+                    $exitApplication = $this->checkScenarioDictionary();
                     break;
                 case 'r':
                     $this->output->writeln('');
@@ -238,7 +242,7 @@ class TasMenu extends Command
             exit;
         } catch (\Exception $ex) {
             $this->clearScreen();
-            $this->output->writeln('An error occured. The exact message was:');
+            $this->output->writeln('An error occurred. The exact message was:');
             $this->output->writeln($ex->getMessage());
             $this->output->writeln('');
             $this->waitForInput();
@@ -246,26 +250,50 @@ class TasMenu extends Command
     }
 
     /**
+     * Allows to validate the dictionary
+     *
      * @return bool
      */
     protected function checkDictionary() : bool
     {
-        $result = DictionaryValidator::validate(
-            DictionaryReader::readFile(
-                DictionaryReader::getDictionaryPath(),
-                ';',
-                1000,
-                false
-            ),
-            true
-        );
-
         $this->clearScreen();
-        if (empty($result)) {
+
+        if (empty(DictionaryValidator::validateStandardDictionary(true))) {
             $this->output->writeln('Everything seems to be fine!');
         } else {
             $msg = 'Something was found wrong in the dictionary.'
-                . 'The report has been generated';
+                . 'The report has been generated.';
+            $this->output->writeln($msg);
+        }
+
+        $this->waitForInput();
+
+        return false;
+    }
+
+    /**
+     * Allows to validate the dictionary AND the scenario files
+     *
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    protected function checkScenarioDictionary() : bool
+    {
+        $helper         = $this->getHelper('question');
+        $question       = new Question("Enter the scenario folder name, e.g : 'Graff Spee': ");
+        $scenarioFolder = $helper->ask($this->input, $this->output, $question);
+        $question       = new Question("Enter the scenario ship file name, e.g : 'GS.scn': ");
+        $fsShipFile     = $helper->ask($this->input, $this->output, $question);
+
+        $this->clearScreen();
+        $this->output->writeln("Checking scenario '$scenarioFolder'");
+
+        if (empty(ScenarioValidator::validate($scenarioFolder, $fsShipFile, true))) {
+            $this->output->writeln('Everything seems to be fine!');
+        } else {
+            $msg = 'Something was found wrong in the scenario validation.'
+                . 'The report has been generated.';
             $this->output->writeln($msg);
         }
 
