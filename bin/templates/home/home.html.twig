@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Fighting Steel Dynamic Campaign Manager</title>
+    {% block stylesheets %}
+        <link href="{{ asset('css/main.css') }}" rel="stylesheet" />
+    {% endblock %}
+    <script src="{{ asset('js/vendor/require/require-2.3.5.js') }}"></script>
+    <script src="{{ asset('js/app/main.js') }}" type="text/javascript"></script>
+</head>
+<body>
+    <div id="actionBox">
+        <div id="actionBoxTitle">Fighting Steel Dynamic Campaign Manager</div>
+        <div id="actionList">
+            <p><button id="newGame" class="myButton">New Game</button></p>
+            <p><button id="restoreGame" class="myButton myButtonNotFirst">Restore Game</button></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -24,6 +24,8 @@ class Directory
     }
 
     /**
+     * Return the path fot the Fighting Steel scenarios folder
+     *
      * @return string
      */
     public static function getScenarioDirectory() : string
@@ -33,11 +35,34 @@ class Directory
     }
 
     /**
+     * Return the path to the Thunder At Sea scenarios folder
+     *
      * @return string
      */
     public static function getTasScenarioDirectory() : string
     {
         return Configuration::getConfigurationFileContent()['TAS-LOCATION']
             . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * List folder in a given location. Only the first level.
+     *
+     * @param string $path
+     *
+     * @return array
+     */
+    public static function listFolder(string $path) : array
+    {
+        $folders = [];
+
+        $dir = new \DirectoryIterator($path);
+        foreach ($dir as $fileInfo) {
+            if ($fileInfo->isDir() && !$fileInfo->isDot()) {
+                $folders[] = $fileInfo->getFilename();
+            }
+        }
+
+        return $folders;
     }
 }

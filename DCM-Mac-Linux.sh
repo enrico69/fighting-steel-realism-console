@@ -1,0 +1,1 @@
+php bin/bin/console server:start

@@ -1,0 +1,75 @@
+body {
+    background-color: darkgray;
+}
+
+#actionBox {
+    background-color: #222222;
+    width: 800px;
+    height: 500px;
+    margin: auto;
+}
+
+#actionBoxTitle {
+    height: 75px;
+    width: 100%;
+    background-color: #565656;
+}
+
+#actionList {
+    height: 425px;
+    width: 100%;
+    background-color: #5eb5e0;
+    text-align: center;
+}
+
+#newGame {
+}
+
+#restoreGame {
+}
+
+p {
+    margin: 0;
+}
+
+.myButton {
+    width: 150px;
+    -moz-box-shadow:inset 0px 34px 0px -15px #dbd377;
+    -webkit-box-shadow:inset 0px 34px 0px -15px #dbd377;
+    box-shadow:inset 0px 34px 0px -15px #dbd377;
+    background-color:#d6cf4b;
+    border:1px solid #171511;
+    display:inline-block;
+    cursor:pointer;
+    color:#423442;
+    font-family:Arial;
+    font-size:15px;
+    font-weight:normal;
+    padding:9px 23px;
+    text-decoration:none;
+    text-shadow:0px -1px 0px #141211;
+    -moz-box-shadow: 5px 5px 5px 0px #000000;
+    -webkit-box-shadow: 5px 5px 5px 0px #000000;
+    -o-box-shadow: 5px 5px 5px 0px #000000;
+    box-shadow: 5px 5px 5px 0px #000000;
+    filter:progid:DXImageTransform.Microsoft.Shadow(color=#000000, Direction=134, Strength=5);
+
+}
+.myButton:hover {
+    background-color:#c9bb24;
+}
+.myButton:active {
+    position:relative;
+    top:1px;
+}
+
+.myButtonNotFirst {
+    margin-top: 10px;
+}
+
+#scenariosList {
+    width: 300px;
+    height: 100px;
+    text-align: left;
+    margin: auto;
+}
