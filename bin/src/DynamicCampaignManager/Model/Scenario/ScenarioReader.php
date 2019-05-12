@@ -7,20 +7,21 @@ namespace App\DynamicCampaignManager\Model\Scenario;
 
 use App\Core\Model\File;
 use App\Core\Model\Directory;
-use Psr\Log\LoggerInterface;
+use App\DynamicCampaignManager\Log\Logger;
 
 class ScenarioReader
 {
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var \App\DynamicCampaignManager\Log\Logger
      */
     private $logger;
 
     /**
      * ScenarioReader constructor.
-     * @param \Psr\Log\LoggerInterface $logger
+     *
+     * @param \App\DynamicCampaignManager\Log\Logger $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(Logger $logger)
     {
         $this->logger = $logger;
     }
@@ -41,7 +42,7 @@ class ScenarioReader
             } catch (\Exception $ex) {
                 $this->logger->warning(
                     "Error during reading the scenario '{$scenarioKey}'"
-                        . ', while generating the scenario list'
+                        . ', while generating the scenario list. Error was:' . $ex->getMessage()
                 );
             }
         }
