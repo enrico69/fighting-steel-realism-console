@@ -50,7 +50,7 @@ class Logger
     {
         $this->logger = $logger;
 
-        $this->logDir = $rootDir . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR;
+        $this->logDir = $rootDir . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
         $this->operationLogger = new MonologLogger('operations');
         $this->operationLogger->pushHandler(new StreamHandler($this->logDir . 'operations.log'));
 
@@ -80,7 +80,9 @@ class Logger
         if (null === $this->scenarioLogger) {
             $scenario = $this->request->getCurrentRequest()->query->get('scenario');
             if (!$scenario) {
-                throw new \LogicException('Missing scenario name. Are you sure you really wanted to use this logging method?');
+                throw new \LogicException(
+                    'Missing scenario name. Are you sure you really wanted to use this logging method?'
+                );
             }
 
             $this->scenarioLogger = new MonologLogger('scenario');

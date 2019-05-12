@@ -14,7 +14,7 @@ class Scenario
     public const INFO_KEYS = [
         self::FILE_INFO_TITLE,
         self::FILE_INFO_SHORT_DESC,
-        self::FILE_INFO_FULL_DESC
+        self::FILE_INFO_FULL_DESC,
     ];
 
     private $key;
@@ -25,12 +25,16 @@ class Scenario
     /**
      * @param string $scenarioKey
      * @param array  $data
+     *
+     * @throws \LogicException
      */
     public function hydrateFromInfo(string $scenarioKey, array $data) : void
     {
         foreach (self::INFO_KEYS as $key) {
             if (!\array_key_exists($key, $data)) {
-                throw new \LogicException("Invalid scenario info file for scenario '{$scenarioKey}'. The key '{$key}' is missing.");
+                throw new \LogicException(
+                    "Invalid scenario info file for scenario '{$scenarioKey}'. The key '{$key}' is missing."
+                );
             }
         }
 

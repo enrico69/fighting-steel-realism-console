@@ -7,49 +7,9 @@ namespace App\DynamicCampaignManager\Model\Scenario;
 
 use App\Core\Model\File;
 use App\Core\Model\Directory;
-use App\DynamicCampaignManager\Log\Logger;
 
 class ScenarioReader
 {
-    /**
-     * @var \App\DynamicCampaignManager\Log\Logger
-     */
-    private $logger;
-
-    /**
-     * ScenarioReader constructor.
-     *
-     * @param \App\DynamicCampaignManager\Log\Logger $logger
-     */
-    public function __construct(Logger $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * @return Scenario[]
-     */
-    public function getScenarioList() : array
-    {
-        $scenarios = [];
-        $scenariosKeys = Directory::listFolder(self::getScenariosDirectory());
-        foreach ($scenariosKeys as $scenarioKey) {
-            try {
-                $scenario = new Scenario();
-                $scenario->hydrateFromInfo($scenarioKey, $this->getScenarioDescription($scenarioKey));
-                $scenarios[$scenarioKey] = $scenario;
-            } catch (\LogicException $exception) {
-            } catch (\Exception $ex) {
-                $this->logger->warning(
-                    "Error during reading the scenario '{$scenarioKey}'"
-                        . ', while generating the scenario list. Error was:' . $ex->getMessage()
-                );
-            }
-        }
-
-        return $scenarios;
-    }
-
     /**
      * @TODO if more keys added, consider refactor
      *
@@ -86,7 +46,9 @@ class ScenarioReader
 
         foreach (Scenario::INFO_KEYS as $key) {
             if (!\array_key_exists($key, $result)) {
-                throw new \LogicException("Invalid scenario info file for scenario '{$scenarioKey}'. The key '{$key}' is missing.");
+                throw new \LogicException(
+                    "Invalid scenario info file for scenario '{$scenarioKey}'. The key '{$key}' is missing."
+                );
             }
         }
 
@@ -98,7 +60,7 @@ class ScenarioReader
      *
      * @return string
      */
-    private function getScenariosDirectory() : string
+    public function getScenariosDirectory() : string
     {
         return Directory::getRootPath()
             . 'bin' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR
