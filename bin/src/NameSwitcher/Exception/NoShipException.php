@@ -13,5 +13,4 @@ namespace App\NameSwitcher\Exception;
  */
 class NoShipException extends \Exception
 {
-
 }

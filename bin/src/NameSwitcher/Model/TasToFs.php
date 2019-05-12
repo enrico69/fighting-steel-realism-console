@@ -200,7 +200,6 @@ class TasToFs extends AbstractScenarioProcessor
         bool $switchOnly,
         bool $updateCount = true
     ) : string {
-
         $replacingShip = $this->dictionary->findOneShip($criteria);
         $shortenedClassName = $this->shortenName($replacingShip->getClass());
         if ($updateCount) {

@@ -12,5 +12,4 @@ namespace App\NameSwitcher\Exception;
  */
 class MoreThanOneShipException extends \Exception
 {
-
 }
