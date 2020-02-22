@@ -1,3 +1,6 @@
+# The project is started over. This repo is closed.
+You can follow the state of the new version of the project [here](https://github.com/ecourtial/Fighting-Steel-Dynamic-Campaign-Manager).
+
 # Fighting Steel Realism Console 
 
 ## Description
